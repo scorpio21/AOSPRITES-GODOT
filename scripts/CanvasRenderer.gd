@@ -130,7 +130,7 @@ static func _dibujar_grilla(img: Image, w: int, h: int, zoom: float, offset_y: i
 # --------------------------------------------------------
 # Dibuja el indicador "frame/total" en la esquina
 # --------------------------------------------------------
-static func dibujar_texto_frame(img: Image, num: int, total: int) -> void:
+static func dibujar_texto_frame(img: Image, num: int, _total: int) -> void:
 	# Godot Image no tiene drawText nativo → se omite el texto,
 	# la UI lo mostrará como Label encima del TextureRect
 	pass

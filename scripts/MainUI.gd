@@ -14,10 +14,12 @@ extends Control
 var data: SpriteData
 
 func _ready() -> void:
-	data = SpriteData
+	panel_ajustes.config_cambiada.connect(on_config_cambiada)
+	panel_cargar.imagen_cargada.connect(on_imagen_cargada)
+	panel_cargar.opciones_cambiadas.connect(on_opciones_imagen_cambiadas)
+	panel_codigo.grh_text_cambiado.connect(func(): on_config_cambiada(false))
+	
 	timer_anim.timeout.connect(_on_timer_tick)
-	_actualizar_velocidad(data.config["speed"])
-	timer_anim.start()
 
 # ── Teclado: flechas para offset ─────────────────────────
 func _input(event: InputEvent) -> void:

@@ -73,6 +73,7 @@ func _ready() -> void:
 func _cargar_head() -> void:
 	var path := "res://assets/head.png"
 	if ResourceLoader.exists(path):
-		head_image = Image.load_from_file(path)
-		if head_image:
-			head_texture = ImageTexture.create_from_image(head_image)
+		var res: Resource = ResourceLoader.load(path)
+		if res is Texture2D:
+			head_texture = res
+			head_image = res.get_image()
