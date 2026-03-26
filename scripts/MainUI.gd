@@ -14,15 +14,33 @@ extends Control
 var data: SpriteData
 
 func _ready() -> void:
+	if not Logger:
+		printerr("ERROR: Logger Autoload no encontrado!")
+		return
+	
+	Logger.log_msg("MainUI: _ready() iniciado")
 	data = SpriteData
-	# Conectar señales de paneles en código (evita problemas de instanciación en TSCN)
-	panel_ajustes.config_cambiada.connect(on_config_cambiada)
-	panel_cargar.imagen_cargada.connect(on_imagen_cargada)
-	panel_cargar.opciones_cambiadas.connect(on_opciones_imagen_cambiadas)
-	panel_codigo.grh_text_cambiado.connect(func(): on_config_cambiada(false))
-	timer_anim.timeout.connect(_on_timer_tick)
-	_actualizar_velocidad(data.config["speed"])
-	timer_anim.start()
+	
+	if not panel_cargar: Logger.log_msg("  ERROR: panel_cargar es NULL")
+	if not panel_ajustes: Logger.log_msg("  ERROR: panel_ajustes es NULL")
+	if not panel_preview: Logger.log_msg("  ERROR: panel_preview es NULL")
+	if not panel_codigo: Logger.log_msg("  ERROR: panel_codigo es NULL")
+
+	# Conectar señales
+	Logger.log_msg("  Conectando señales...")
+	if panel_ajustes: panel_ajustes.config_cambiada.connect(on_config_cambiada)
+	if panel_cargar: 
+		panel_cargar.imagen_cargada.connect(on_imagen_cargada)
+		panel_cargar.opciones_cambiadas.connect(on_opciones_imagen_cambiadas)
+	if panel_codigo: panel_codigo.grh_text_cambiado.connect(func(): on_config_cambiada(false))
+	
+	if timer_anim:
+		timer_anim.timeout.connect(_on_timer_tick)
+		_actualizar_velocidad(data.config["speed"])
+		timer_anim.start()
+		Logger.log_msg("  Timer animado OK")
+	
+	Logger.log_msg("MainUI: _ready() completado")
 
 # ── Teclado: flechas para offset ─────────────────────────
 func _input(event: InputEvent) -> void:

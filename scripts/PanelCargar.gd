@@ -24,36 +24,37 @@ var _imagen_procesada: Image = null
 var _nombre_base: String = ""
 
 func _ready() -> void:
-	# Intentar encontrar un label de debug visual en la raíz para que el usuario vea mensajes sin consola
-	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
-	if visual_debug: visual_debug.text = "Debug iniciado..."
-
-	printerr("[DEBUG PanelCargar] _ready() iniciado")
+	# Asegurarnos de que el Logger existe
+	if not Logger: return
 	
+	Logger.log_msg("PanelCargar: _ready() iniciado")
+	
+	# Actualizar label visual
+	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
+	if visual_debug: visual_debug.text = "PROCESANDO CARGA..."
+
 	# Forzar ventanas nativas del OS para los FileDialog
 	get_viewport().gui_embed_subwindows = false
+	Logger.log_msg("  Subwindows nativas activas")
 	
-	# Drag & drop desde el sistema operativo (Godot 4: usar get_window())
+	# Drag & drop (probar ambos por seguridad en Windows)
 	get_window().files_dropped.connect(_on_archivos_soltados)
-	printerr("[DEBUG PanelCargar] Señal 'files_dropped' de Window conectada")
+	Logger.log_msg("  Files_dropped conectado a window")
 
-	# Clic en el botón drop zone → abrir selector de archivo
+	# Conexiones
 	drop_zone.pressed.connect(_abrir_selector)
-	
-	# FileDialog callbacks
 	file_dialog_open.file_selected.connect(_on_archivo_seleccionado)
 	file_dialog_save.file_selected.connect(_on_guardar_seleccionado)
-
-	# Otros botones y checks
 	btn_descargar.pressed.connect(_solicitar_guardar)
+	
 	check_p2.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
 	check_bg.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
 	spin_tol.value_changed.connect(func(_v: float): opciones_cambiadas.emit())
 	opt_formato.item_selected.connect(func(_v: int): opciones_cambiadas.emit())
 
 	container_resized.hide()
-	printerr("[DEBUG PanelCargar] _ready() completado OK")
-	if visual_debug: visual_debug.text = "Sistema de carga: OK"
+	Logger.log_msg("PanelCargar: _ready() finalizado con éxito")
+	if visual_debug: visual_debug.text = "SISTEMA LISTO (USER://DEBUG_AOSPRITES.LOG)"
 
 # ── Abrir FileDialog ──────────────────────────────────────
 func _abrir_selector() -> void:

@@ -53,7 +53,7 @@ static func _dibujar_tablero(img: Image, w: int, h: int) -> void:
 	var tile := 5
 	for y in h:
 		for x in w:
-			var par := (x / tile + y / tile) % 2 == 0
+			var par := (int(float(x) / tile) + int(float(y) / tile)) % 2 == 0
 			img.set_pixel(x, y, COLOR_DARK if par else COLOR_LIGHT)
 
 # --------------------------------------------------------

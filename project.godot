@@ -22,6 +22,7 @@ config/icon="res://assets/head.png"
 
 [autoload]
 
+Logger="*res://scripts/Logger.gd"
 SpriteData="*res://scripts/SpriteData.gd"
 
 [display]
