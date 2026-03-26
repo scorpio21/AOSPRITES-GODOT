@@ -14,33 +14,40 @@ extends Control
 var data: SpriteData
 
 func _ready() -> void:
+	# Failsafe: Imprimir a consola nativa primero
+	printerr("!!! MainUI: _ready() START !!!")
+	
+	# Buscar debug log de forma agresiva
+	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
+	if visual_debug: visual_debug.text = "MAIN UI CARGADA"
+
 	if not AOLogger:
 		printerr("ERROR: AOLogger Autoload no encontrado!")
-		return
+		if visual_debug: visual_debug.text = "ERROR: SIN LOGGER"
+		# No retornar, intentar seguir
+	else:
+		AOLogger.log_msg("MainUI: _ready() iniciado")
 	
-	AOLogger.log_msg("MainUI: _ready() iniciado")
 	data = SpriteData
 	
-	if not panel_cargar: AOLogger.log_msg("  ERROR: panel_cargar es NULL")
-	if not panel_ajustes: AOLogger.log_msg("  ERROR: panel_ajustes es NULL")
-	if not panel_preview: AOLogger.log_msg("  ERROR: panel_preview es NULL")
-	if not panel_codigo: AOLogger.log_msg("  ERROR: panel_codigo es NULL")
-
-	# Conectar señales
-	AOLogger.log_msg("  Conectando señales...")
-	if panel_ajustes: panel_ajustes.config_cambiada.connect(on_config_cambiada)
+	# Diagnóstico de nodos
+	if not panel_cargar: printerr("  ERROR: panel_cargar es NULL")
+	if not panel_ajustes: printerr("  ERROR: panel_ajustes es NULL")
+	
+	# Conectar señales con safeties
 	if panel_cargar: 
 		panel_cargar.imagen_cargada.connect(on_imagen_cargada)
 		panel_cargar.opciones_cambiadas.connect(on_opciones_imagen_cambiadas)
+	if panel_ajustes: panel_ajustes.config_cambiada.connect(on_config_cambiada)
 	if panel_codigo: panel_codigo.grh_text_cambiado.connect(func(): on_config_cambiada(false))
 	
 	if timer_anim:
 		timer_anim.timeout.connect(_on_timer_tick)
 		_actualizar_velocidad(data.config["speed"])
 		timer_anim.start()
-		AOLogger.log_msg("  Timer animado OK")
 	
-	AOLogger.log_msg("MainUI: _ready() completado")
+	if AOLogger: AOLogger.log_msg("MainUI: _ready() completo")
+	printerr("!!! MainUI: _ready() END !!!")
 
 # ── Teclado: flechas para offset ─────────────────────────
 func _input(event: InputEvent) -> void:

@@ -24,37 +24,32 @@ var _imagen_procesada: Image = null
 var _nombre_base: String = ""
 
 func _ready() -> void:
-	# Asegurarnos de que el AOLogger existe
-	if not AOLogger: return
+	printerr("!!! PanelCargar: _ready() START !!!")
 	
-	AOLogger.log_msg("PanelCargar: _ready() iniciado")
-	
-	# Actualizar label visual
+	# Buscar debug log visual
 	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
-	if visual_debug: visual_debug.text = "PROCESANDO CARGA..."
+	if visual_debug: visual_debug.text = "CARGANDO PANEL..."
 
-	# Forzar ventanas nativas del OS para los FileDialog
+	# Forzar ventanas nativas
 	get_viewport().gui_embed_subwindows = false
-	AOLogger.log_msg("  Subwindows nativas activas")
 	
-	# Drag & drop (probar ambos por seguridad en Windows)
+	# Conectar drag & drop de ventana
 	get_window().files_dropped.connect(_on_archivos_soltados)
-	AOLogger.log_msg("  Files_dropped conectado a window")
 
-	# Conexiones
-	drop_zone.pressed.connect(_abrir_selector)
-	file_dialog_open.file_selected.connect(_on_archivo_seleccionado)
-	file_dialog_save.file_selected.connect(_on_guardar_seleccionado)
-	btn_descargar.pressed.connect(_solicitar_guardar)
+	# Conectar señales de UI
+	if drop_zone: drop_zone.pressed.connect(_abrir_selector)
+	if btn_descargar: btn_descargar.pressed.connect(_solicitar_guardar)
 	
-	check_p2.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
-	check_bg.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
-	spin_tol.value_changed.connect(func(_v: float): opciones_cambiadas.emit())
-	opt_formato.item_selected.connect(func(_v: int): opciones_cambiadas.emit())
+	if check_p2: check_p2.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
+	if check_bg: check_bg.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
+	if spin_tol: spin_tol.value_changed.connect(func(_v: float): opciones_cambiadas.emit())
+	if opt_formato: opt_formato.item_selected.connect(func(_v: int): opciones_cambiadas.emit())
 
 	container_resized.hide()
-	AOLogger.log_msg("PanelCargar: _ready() finalizado con éxito")
-	if visual_debug: visual_debug.text = "SISTEMA LISTO (USER://DEBUG_AOSPRITES.LOG)"
+	
+	if visual_debug: visual_debug.text = "V1.1: LISTO PARA ACCION"
+	if AOLogger: AOLogger.log_msg("PanelCargar: _ready() completo")
+	printerr("!!! PanelCargar: _ready() END !!!")
 
 # ── Abrir FileDialog ──────────────────────────────────────
 func _abrir_selector() -> void:
@@ -118,6 +113,12 @@ func _solicitar_guardar() -> void:
 	file_dialog_save.filters = PackedStringArray([ext_filter])
 	file_dialog_save.current_file = _nombre_base + "." + formato()
 	file_dialog_save.popup_centered(Vector2i(900, 600))
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		AOLogger.log_msg("PanelCargar: Click detectado en el PANEL (pos: " + str(event.position) + ")")
+		var visual_debug = get_tree().root.find_child("DebugLog", true, false)
+		if visual_debug: visual_debug.text = "CLICK EN PANEL OK"
 
 func _on_guardar_seleccionado(ruta: String) -> void:
 	ImageProcessor.guardar_imagen(_imagen_procesada, ruta)
