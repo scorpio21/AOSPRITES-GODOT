@@ -1,0 +1,18 @@
+# Godot 4 generated files
+.godot/
+*.import
+
+# Export presets
+export_presets.cfg
+
+# Mono / C# (si aplica)
+.mono/
+data_*/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Editor temporales
+*.tmp
+*.bak

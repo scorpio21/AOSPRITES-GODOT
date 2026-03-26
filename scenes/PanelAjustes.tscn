@@ -1,0 +1,134 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/PanelAjustes.gd" id="1_ajustes"]
+
+[node name="PanelAjustes" type="PanelContainer" script=ExtResource("1_ajustes")]
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="Header" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "2. Ajustar Indexación y Cuerpo"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.878, 0.878, 0.878, 1)
+
+[node name="Separator" type="HSeparator" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="GridTop" type="GridContainer" parent="Margin/VBox"]
+layout_mode = 2
+columns = 6
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 10
+
+[node name="LabelLastGrh" type="Label" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+text = "NumGrh (empezará en +1):"
+
+[node name="SpinLastGrh" type="SpinBox" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+min_value = 1.0
+max_value = 9999999.0
+value = 30000.0
+allow_lesser = false
+
+[node name="LabelWidth" type="Label" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+text = "Ancho (Frame Width):"
+
+[node name="SpinWidth" type="SpinBox" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+min_value = 1.0
+max_value = 512.0
+value = 25.0
+
+[node name="LabelHeight" type="Label" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+text = "Alto (Frame Height):"
+
+[node name="SpinHeight" type="SpinBox" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+min_value = 1.0
+max_value = 512.0
+value = 45.0
+
+[node name="LabelSpeed" type="Label" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+text = "Velocidad (ms):"
+
+[node name="SpinSpeed" type="SpinBox" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+min_value = 10.0
+max_value = 2000.0
+value = 100.0
+
+[node name="LabelZoom" type="Label" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+text = "Zoom Previsualización:"
+
+[node name="SpinZoom" type="SpinBox" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+min_value = 1.0
+max_value = 10.0
+step = 0.5
+value = 2.0
+
+[node name="CheckGrid" type="CheckBox" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Mostrar Grilla (Zoom >= 3)"
+button_pressed = true
+
+[node name="Spacer" type="Control" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+
+[node name="SepOffsets" type="HSeparator" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="LabelOffsetInfo" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "La cabeza se previsualiza usando head.png. Configura los offsets del cuello para el cuerpo:"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.667, 0.667, 0.667, 1)
+autowrap_mode = 3
+
+[node name="GridOffsets" type="GridContainer" parent="Margin/VBox"]
+layout_mode = 2
+columns = 4
+theme_override_constants/h_separation = 15
+
+[node name="LabelHox" type="Label" parent="Margin/VBox/GridOffsets"]
+layout_mode = 2
+text = "HeadOffsetX:"
+
+[node name="SpinHox" type="SpinBox" parent="Margin/VBox/GridOffsets"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+min_value = -200.0
+max_value = 200.0
+value = 0.0
+
+[node name="LabelHoy" type="Label" parent="Margin/VBox/GridOffsets"]
+layout_mode = 2
+text = "HeadOffsetY: (aprox 6 para enanos)"
+
+[node name="SpinHoy" type="SpinBox" parent="Margin/VBox/GridOffsets"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+min_value = -200.0
+max_value = 200.0
+value = -2.0

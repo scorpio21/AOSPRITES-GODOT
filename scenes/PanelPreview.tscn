@@ -1,0 +1,72 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/PanelPreview.gd" id="1_preview"]
+
+[node name="PanelPreview" type="PanelContainer" script=ExtResource("1_preview")]
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="Header" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "3. Previsualización"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.878, 0.878, 0.878, 1)
+
+[node name="Separator" type="HSeparator" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="InfoLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "Haz clic en los frames estáticos para seleccionarlos. Al seleccionar uno, aparecerán sus controles de offset (o usa las flechas del teclado)."
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.667, 0.667, 0.667, 1)
+autowrap_mode = 3
+
+[node name="ScrollFrames" type="ScrollContainer" parent="Margin/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 400)
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="AnimContainer" type="VBoxContainer" parent="Margin/VBox/ScrollFrames"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="OffsetControls" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 200.0
+offset_bottom = 80.0
+visible = false
+
+[node name="BtnUp" type="Button" parent="OffsetControls"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "↑ Arriba"
+
+[node name="HBox" type="HBoxContainer" parent="OffsetControls"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnLeft" type="Button" parent="OffsetControls/HBox"]
+layout_mode = 2
+text = "← Izq"
+
+[node name="BtnDown" type="Button" parent="OffsetControls/HBox"]
+layout_mode = 2
+text = "↓ Abajo"
+
+[node name="BtnRight" type="Button" parent="OffsetControls/HBox"]
+layout_mode = 2
+text = "→ Der"

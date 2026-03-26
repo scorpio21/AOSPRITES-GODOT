@@ -1,0 +1,129 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/PanelCargar.gd" id="1_cargar"]
+
+[node name="PanelCargar" type="PanelContainer" script=ExtResource("1_cargar")]
+custom_minimum_size = Vector2(0, 200)
+size_flags_horizontal = 3
+theme_override_styles/panel = StyleBoxFlat.new()
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="Header" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "1. Cargar Gráfico (.png)"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.878, 0.878, 0.878, 1)
+
+[node name="Separator" type="HSeparator" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="DropZone" type="Button" parent="Margin/VBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 120)
+text = ""
+flat = false
+
+[node name="DropLabel" type="Label" parent="Margin/VBox/HBox/DropZone"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Arrastra tu imagen aquí o haz clic para seleccionarla"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="PreviewOriginal" type="TextureRect" parent="Margin/VBox/HBox/DropZone"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 3
+stretch_mode = 6
+texture_filter = 1
+visible = false
+
+[node name="ContainerResized" type="VBoxContainer" parent="Margin/VBox/HBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 0)
+visible = false
+
+[node name="LabelResized" type="Label" parent="Margin/VBox/HBox/ContainerResized"]
+layout_mode = 2
+text = "Imagen Re-escalada (192x192)"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.506, 0.784, 0.518, 1)
+
+[node name="PreviewResized" type="TextureRect" parent="Margin/VBox/HBox/ContainerResized"]
+layout_mode = 2
+custom_minimum_size = Vector2(192, 120)
+expand_mode = 3
+stretch_mode = 6
+texture_filter = 1
+
+[node name="HBoxOpts" type="HBoxContainer" parent="Margin/VBox/HBox/ContainerResized"]
+layout_mode = 2
+
+[node name="CheckP2" type="CheckBox" parent="Margin/VBox/HBox/ContainerResized/HBoxOpts"]
+layout_mode = 2
+text = "^2"
+button_pressed = true
+
+[node name="CheckBg" type="CheckBox" parent="Margin/VBox/HBox/ContainerResized/HBoxOpts"]
+layout_mode = 2
+text = "Quitar Fondo"
+
+[node name="LabelTol" type="Label" parent="Margin/VBox/HBox/ContainerResized/HBoxOpts"]
+layout_mode = 2
+text = "Tolerancia:"
+
+[node name="SpinTol" type="SpinBox" parent="Margin/VBox/HBox/ContainerResized/HBoxOpts"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 0)
+min_value = 0.0
+max_value = 255.0
+value = 15.0
+
+[node name="LabelFmt" type="Label" parent="Margin/VBox/HBox/ContainerResized/HBoxOpts"]
+layout_mode = 2
+text = "Formato:"
+
+[node name="OptFormato" type="OptionButton" parent="Margin/VBox/HBox/ContainerResized/HBoxOpts"]
+layout_mode = 2
+item_count = 2
+selected = 0
+popup/item_0/text = "PNG"
+popup/item_1/text = "BMP"
+
+[node name="BtnDescargar" type="Button" parent="Margin/VBox/HBox/ContainerResized"]
+layout_mode = 2
+text = "Descargar"
+
+[node name="FileDialogOpen" type="FileDialog" parent="."]
+title = "Seleccionar imagen"
+size = Vector2i(800, 600)
+access = 2
+filters = PackedStringArray("*.png, *.jpg ; Imágenes")
+file_mode = 0
+
+[node name="FileDialogSave" type="FileDialog" parent="."]
+title = "Guardar imagen procesada"
+size = Vector2i(800, 600)
+access = 2
+filters = PackedStringArray("*.png ; PNG")
+file_mode = 4
