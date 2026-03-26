@@ -229,7 +229,7 @@ func redibujar_frames() -> void:
 
 # ── Controles de reproducción ─────────────────────────────
 func _toggle_play(dir: String) -> void:
-	var estado := SpriteData.anim_states[dir]
+	var estado: Dictionary = SpriteData.anim_states[dir]
 	estado["playing"] = not estado["playing"]
 	var btn: Button = _btn_plays.get(dir)
 	if btn:
@@ -251,7 +251,7 @@ func _step_frame(dir: String, delta: int) -> void:
 	if anim_data.get("type", 0) == 2:
 		var frames: Array = anim_data["frames"]
 		var idx: int = SpriteData.anim_states[dir]["current_frame"] % frames.size()
-		var frame_id := frames[idx]
+		var frame_id: int = frames[idx]
 		for entry in _frame_items.get(dir, []):
 			if entry["id"] == frame_id:
 				_seleccionar_frame(frame_id, entry["item"])

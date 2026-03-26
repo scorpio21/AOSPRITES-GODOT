@@ -32,7 +32,7 @@ static func reescalar(img: Image, usar_potencia_de_dos: bool) -> Dictionary:
 		result_img.blit_rect(temp, Rect2i(0, 0, 192, 192), Vector2i(0, 0))
 		if target_size == 256:
 			# Rellenar el borde extra con el color de fondo (pixel 191,191)
-			var bg_color := temp.get_pixel(191, 191)
+			var bg_color: Color = temp.get_pixel(191, 191)
 			for x in range(192, 256):
 				for y in range(256):
 					result_img.set_pixel(x, y, bg_color)
@@ -54,9 +54,9 @@ static func quitar_fondo(img: Image, tolerancia: int) -> Image:
 	var resultado := img.duplicate()
 	resultado.convert(Image.FORMAT_RGBA8)
 
-	var w := resultado.get_width()
-	var h := resultado.get_height()
-	var bg := resultado.get_pixel(w - 1, h - 1)
+	var w: int = resultado.get_width()
+	var h: int = resultado.get_height()
+	var bg: Color = resultado.get_pixel(w - 1, h - 1)
 
 	# Si el pixel de referencia es transparente, no hacer nada
 	if bg.a == 0.0:
@@ -64,12 +64,12 @@ static func quitar_fondo(img: Image, tolerancia: int) -> Image:
 
 	for y in h:
 		for x in w:
-			var px := resultado.get_pixel(x, y)
+			var px: Color = resultado.get_pixel(x, y)
 			if px.a == 0.0:
 				continue
-			var diff_r := abs(int(px.r * 255) - int(bg.r * 255))
-			var diff_g := abs(int(px.g * 255) - int(bg.g * 255))
-			var diff_b := abs(int(px.b * 255) - int(bg.b * 255))
+			var diff_r: int = abs(int(px.r * 255) - int(bg.r * 255))
+			var diff_g: int = abs(int(px.g * 255) - int(bg.g * 255))
+			var diff_b: int = abs(int(px.b * 255) - int(bg.b * 255))
 			if diff_r <= tolerancia and diff_g <= tolerancia and diff_b <= tolerancia:
 				resultado.set_pixel(x, y, Color(px.r, px.g, px.b, 0.0))
 
