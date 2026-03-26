@@ -6,10 +6,7 @@ extends Node
 # --------------------------------------------------------
 # Señales
 # --------------------------------------------------------
-signal config_changed
-signal grh_data_changed
-signal image_loaded
-signal frame_selected(grh_id: int)
+
 
 # --------------------------------------------------------
 # Configuración del procesador
@@ -56,7 +53,7 @@ var row_frames: Dictionary = {"up": 6, "down": 6, "right": 5, "left": 5}
 var sprite_image: Image = null
 var sprite_texture: ImageTexture = null
 var head_image: Image = null
-var head_texture: ImageTexture = null
+var head_texture: Texture2D = null
 
 # Frame seleccionado actualmente
 var selected_grh_id: int = -1

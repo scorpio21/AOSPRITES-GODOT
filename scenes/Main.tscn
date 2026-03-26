@@ -50,7 +50,4 @@ layout_mode = 2
 [node name="PanelCodigo" parent="ScrollContainer/VBox" instance=ExtResource("5_codigo")]
 layout_mode = 2
 
-[connection signal="config_cambiada" from="ScrollContainer/VBox/PanelAjustes" to="." method="on_config_cambiada"]
-[connection signal="imagen_cargada" from="ScrollContainer/VBox/PanelCargar" to="." method="on_imagen_cargada"]
-[connection signal="opciones_cambiadas" from="ScrollContainer/VBox/PanelCargar" to="." method="on_opciones_imagen_cambiadas"]
-[connection signal="grh_text_cambiado" from="ScrollContainer/VBox/PanelCodigo" to="." method="on_config_cambiada" binds=[false]]
+

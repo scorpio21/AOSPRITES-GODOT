@@ -30,6 +30,8 @@ window/size/viewport_width=1150
 window/size/viewport_height=800
 window/size/min_width=900
 window/size/min_height=600
+window/drop_files/enabled=true
+display/window/subwindows/embed_subwindows=false
 
 [rendering]
 

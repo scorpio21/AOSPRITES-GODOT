@@ -53,7 +53,7 @@ static func _dibujar_tablero(img: Image, w: int, h: int) -> void:
 	var tile := 5
 	for y in h:
 		for x in w:
-			var par := ((x / tile) + (y / tile)) % 2 == 0
+			var par := (x / tile + y / tile) % 2 == 0
 			img.set_pixel(x, y, COLOR_DARK if par else COLOR_LIGHT)
 
 # --------------------------------------------------------
@@ -87,7 +87,7 @@ static func _dibujar_cabeza(
 	var sx_map := {"down": 0, "right": 17, "left": 34, "up": 51}
 	var sx: int = sx_map.get(dir, 0)
 
-	var rel_x := hox + (bw - 32) / 2 - (hw - 32) / 2
+	var rel_x := hox + int((bw - 32) / 2.0) - int((hw - 32) / 2.0)
 	var rel_y := hoy - hh + bh + offset_y
 
 	var src_rect := Rect2i(sx, 0, hw, hh)
@@ -130,7 +130,7 @@ static func _dibujar_grilla(img: Image, w: int, h: int, zoom: float, offset_y: i
 # --------------------------------------------------------
 # Dibuja el indicador "frame/total" en la esquina
 # --------------------------------------------------------
-static func dibujar_texto_frame(img: Image, num: int, _total: int) -> void:
+static func dibujar_texto_frame(_img: Image, _num: int, _total: int) -> void:
 	# Godot Image no tiene drawText nativo → se omite el texto,
 	# la UI lo mostrará como Label encima del TextureRect
 	pass
