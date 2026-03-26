@@ -24,80 +24,70 @@ var _imagen_procesada: Image = null
 var _nombre_base: String = ""
 
 func _ready() -> void:
-	print("[DEBUG PanelCargar] _ready() iniciado")
+	# Intentar encontrar un label de debug visual en la raíz para que el usuario vea mensajes sin consola
+	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
+	if visual_debug: visual_debug.text = "Debug iniciado..."
 
+	printerr("[DEBUG PanelCargar] _ready() iniciado")
+	
 	# Forzar ventanas nativas del OS para los FileDialog
-	# Sin esto en Godot 4, los diálogos quedan embebidos y no son visibles
-	# dentro de layouts anidados como ScrollContainer.
 	get_viewport().gui_embed_subwindows = false
-	print("[DEBUG PanelCargar] gui_embed_subwindows = false aplicado")
-
-	# Verificar que los nodos críticos existen
-	print("[DEBUG PanelCargar] drop_zone OK: ", drop_zone != null)
-	print("[DEBUG PanelCargar] file_dialog_open OK: ", file_dialog_open != null)
-	print("[DEBUG PanelCargar] file_dialog_save OK: ", file_dialog_save != null)
+	
+	# Drag & drop desde el sistema operativo (Godot 4: usar get_window())
+	get_window().files_dropped.connect(_on_archivos_soltados)
+	printerr("[DEBUG PanelCargar] Señal 'files_dropped' de Window conectada")
 
 	# Clic en el botón drop zone → abrir selector de archivo
 	drop_zone.pressed.connect(_abrir_selector)
-	print("[DEBUG PanelCargar] Señal 'pressed' de drop_zone conectada")
-
-	# Drag & drop desde el sistema operativo (Windows Explorer, etc.)
-	get_tree().root.files_dropped.connect(_on_archivos_soltados)
-	print("[DEBUG PanelCargar] Señal 'files_dropped' de root conectada")
-
+	
 	# FileDialog callbacks
 	file_dialog_open.file_selected.connect(_on_archivo_seleccionado)
 	file_dialog_save.file_selected.connect(_on_guardar_seleccionado)
-	print("[DEBUG PanelCargar] Señales de FileDialog conectadas")
 
-	# Botón descargar
+	# Otros botones y checks
 	btn_descargar.pressed.connect(_solicitar_guardar)
-
-	# Cambios en opciones de procesado
 	check_p2.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
 	check_bg.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
 	spin_tol.value_changed.connect(func(_v: float): opciones_cambiadas.emit())
 	opt_formato.item_selected.connect(func(_v: int): opciones_cambiadas.emit())
 
 	container_resized.hide()
-	print("[DEBUG PanelCargar] _ready() completado OK")
+	printerr("[DEBUG PanelCargar] _ready() completado OK")
+	if visual_debug: visual_debug.text = "Sistema de carga: OK"
 
 # ── Abrir FileDialog ──────────────────────────────────────
 func _abrir_selector() -> void:
-	print("[DEBUG PanelCargar] _abrir_selector() llamado")
-	print("[DEBUG PanelCargar]   file_dialog_open válido: ", is_instance_valid(file_dialog_open))
-	print("[DEBUG PanelCargar]   file_dialog_open visible antes: ", file_dialog_open.visible)
+	printerr("[DEBUG PanelCargar] _abrir_selector() llamado")
 	file_dialog_open.popup_centered(Vector2i(900, 600))
-	print("[DEBUG PanelCargar]   file_dialog_open visible después: ", file_dialog_open.visible)
 
 # ── Drag & drop desde el OS (Windows Explorer) ────────────
 func _on_archivos_soltados(archivos: PackedStringArray) -> void:
-	print("[DEBUG PanelCargar] _on_archivos_soltados() recibido: ", archivos)
-	if archivos.size() == 0:
-		print("[DEBUG PanelCargar]   Lista vacía, ignorando")
-		return
+	printerr("[DEBUG PanelCargar] _on_archivos_soltados() recibido: ", archivos)
+	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
+	if visual_debug: visual_debug.text = "Archivos detectados: " + str(archivos.size())
+
+	if archivos.size() == 0: return
 	var ext := archivos[0].get_extension().to_lower()
-	print("[DEBUG PanelCargar]   Extensión detectada: '", ext, "'")
 	if ext == "png" or ext == "jpg" or ext == "jpeg":
 		_on_archivo_seleccionado(archivos[0])
-	else:
-		print("[DEBUG PanelCargar]   Extensión no soportada, se ignora")
 
 # ── Archivo seleccionado (FileDialog o drag&drop) ─────────
 func _on_archivo_seleccionado(ruta: String) -> void:
-	print("[DEBUG PanelCargar] _on_archivo_seleccionado() ruta: '", ruta, "'")
+	printerr("[DEBUG PanelCargar] Cargando: '", ruta, "'")
 	var img := ImageProcessor.cargar_imagen(ruta)
 	if not img:
-		print("[DEBUG PanelCargar]   ERROR: ImageProcessor.cargar_imagen devolvió null")
+		printerr("[DEBUG PanelCargar] ERROR: No se pudo cargar la imagen")
 		drop_label.text = "Error al cargar: " + ruta.get_file()
 		return
-	print("[DEBUG PanelCargar]   Imagen cargada OK, tamaño: ", img.get_width(), "x", img.get_height())
+	
 	_nombre_base = ruta.get_file().get_basename()
 	drop_label.text = "✓ " + ruta.get_file()
 	preview_original.texture = ImageTexture.create_from_image(img)
 	preview_original.show()
 	imagen_cargada.emit(img, _nombre_base)
-	print("[DEBUG PanelCargar]   Señal imagen_cargada emitida")
+	
+	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
+	if visual_debug: visual_debug.text = "Imagen cargada: " + ruta.get_file()
 
 # ── Actualizar vista previa de imagen procesada ───────────
 func actualizar_preview(img: Image, titulo: String) -> void:
