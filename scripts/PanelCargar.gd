@@ -24,10 +24,10 @@ var _imagen_procesada: Image = null
 var _nombre_base: String = ""
 
 func _ready() -> void:
-	# Asegurarnos de que el Logger existe
-	if not Logger: return
+	# Asegurarnos de que el AOLogger existe
+	if not AOLogger: return
 	
-	Logger.log_msg("PanelCargar: _ready() iniciado")
+	AOLogger.log_msg("PanelCargar: _ready() iniciado")
 	
 	# Actualizar label visual
 	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
@@ -35,11 +35,11 @@ func _ready() -> void:
 
 	# Forzar ventanas nativas del OS para los FileDialog
 	get_viewport().gui_embed_subwindows = false
-	Logger.log_msg("  Subwindows nativas activas")
+	AOLogger.log_msg("  Subwindows nativas activas")
 	
 	# Drag & drop (probar ambos por seguridad en Windows)
 	get_window().files_dropped.connect(_on_archivos_soltados)
-	Logger.log_msg("  Files_dropped conectado a window")
+	AOLogger.log_msg("  Files_dropped conectado a window")
 
 	# Conexiones
 	drop_zone.pressed.connect(_abrir_selector)
@@ -53,17 +53,17 @@ func _ready() -> void:
 	opt_formato.item_selected.connect(func(_v: int): opciones_cambiadas.emit())
 
 	container_resized.hide()
-	Logger.log_msg("PanelCargar: _ready() finalizado con éxito")
+	AOLogger.log_msg("PanelCargar: _ready() finalizado con éxito")
 	if visual_debug: visual_debug.text = "SISTEMA LISTO (USER://DEBUG_AOSPRITES.LOG)"
 
 # ── Abrir FileDialog ──────────────────────────────────────
 func _abrir_selector() -> void:
-	printerr("[DEBUG PanelCargar] _abrir_selector() llamado")
+	AOLogger.log_msg("_abrir_selector() llamado")
 	file_dialog_open.popup_centered(Vector2i(900, 600))
 
 # ── Drag & drop desde el OS (Windows Explorer) ────────────
 func _on_archivos_soltados(archivos: PackedStringArray) -> void:
-	printerr("[DEBUG PanelCargar] _on_archivos_soltados() recibido: ", archivos)
+	AOLogger.log_msg("_on_archivos_soltados() recibido: " + str(archivos))
 	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
 	if visual_debug: visual_debug.text = "Archivos detectados: " + str(archivos.size())
 
@@ -74,10 +74,10 @@ func _on_archivos_soltados(archivos: PackedStringArray) -> void:
 
 # ── Archivo seleccionado (FileDialog o drag&drop) ─────────
 func _on_archivo_seleccionado(ruta: String) -> void:
-	printerr("[DEBUG PanelCargar] Cargando: '", ruta, "'")
+	AOLogger.log_msg("Cargando: '" + ruta + "'")
 	var img := ImageProcessor.cargar_imagen(ruta)
 	if not img:
-		printerr("[DEBUG PanelCargar] ERROR: No se pudo cargar la imagen")
+		AOLogger.log_msg("ERROR: No se pudo cargar la imagen")
 		drop_label.text = "Error al cargar: " + ruta.get_file()
 		return
 	

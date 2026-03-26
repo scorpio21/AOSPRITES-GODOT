@@ -14,20 +14,20 @@ extends Control
 var data: SpriteData
 
 func _ready() -> void:
-	if not Logger:
-		printerr("ERROR: Logger Autoload no encontrado!")
+	if not AOLogger:
+		printerr("ERROR: AOLogger Autoload no encontrado!")
 		return
 	
-	Logger.log_msg("MainUI: _ready() iniciado")
+	AOLogger.log_msg("MainUI: _ready() iniciado")
 	data = SpriteData
 	
-	if not panel_cargar: Logger.log_msg("  ERROR: panel_cargar es NULL")
-	if not panel_ajustes: Logger.log_msg("  ERROR: panel_ajustes es NULL")
-	if not panel_preview: Logger.log_msg("  ERROR: panel_preview es NULL")
-	if not panel_codigo: Logger.log_msg("  ERROR: panel_codigo es NULL")
+	if not panel_cargar: AOLogger.log_msg("  ERROR: panel_cargar es NULL")
+	if not panel_ajustes: AOLogger.log_msg("  ERROR: panel_ajustes es NULL")
+	if not panel_preview: AOLogger.log_msg("  ERROR: panel_preview es NULL")
+	if not panel_codigo: AOLogger.log_msg("  ERROR: panel_codigo es NULL")
 
 	# Conectar señales
-	Logger.log_msg("  Conectando señales...")
+	AOLogger.log_msg("  Conectando señales...")
 	if panel_ajustes: panel_ajustes.config_cambiada.connect(on_config_cambiada)
 	if panel_cargar: 
 		panel_cargar.imagen_cargada.connect(on_imagen_cargada)
@@ -38,9 +38,9 @@ func _ready() -> void:
 		timer_anim.timeout.connect(_on_timer_tick)
 		_actualizar_velocidad(data.config["speed"])
 		timer_anim.start()
-		Logger.log_msg("  Timer animado OK")
+		AOLogger.log_msg("  Timer animado OK")
 	
-	Logger.log_msg("MainUI: _ready() completado")
+	AOLogger.log_msg("MainUI: _ready() completado")
 
 # ── Teclado: flechas para offset ─────────────────────────
 func _input(event: InputEvent) -> void:
