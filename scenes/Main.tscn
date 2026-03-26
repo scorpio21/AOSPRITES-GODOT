@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/MainUI.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/PanelCargar.tscn" id="2_cargar"]
@@ -38,16 +38,16 @@ theme_override_colors/font_color = Color(0.298, 0.686, 0.314, 1)
 theme_override_constants/margin_top = 15
 theme_override_constants/margin_bottom = 10
 
-[node name="PanelCargar" type="Control" parent="ScrollContainer/VBox" instance=ExtResource("2_cargar")]
+[node name="PanelCargar" parent="ScrollContainer/VBox" instance=ExtResource("2_cargar")]
 layout_mode = 2
 
-[node name="PanelAjustes" type="Control" parent="ScrollContainer/VBox" instance=ExtResource("3_ajustes")]
+[node name="PanelAjustes" parent="ScrollContainer/VBox" instance=ExtResource("3_ajustes")]
 layout_mode = 2
 
-[node name="PanelPreview" type="Control" parent="ScrollContainer/VBox" instance=ExtResource("4_preview")]
+[node name="PanelPreview" parent="ScrollContainer/VBox" instance=ExtResource("4_preview")]
 layout_mode = 2
 
-[node name="PanelCodigo" type="Control" parent="ScrollContainer/VBox" instance=ExtResource("5_codigo")]
+[node name="PanelCodigo" parent="ScrollContainer/VBox" instance=ExtResource("5_codigo")]
 layout_mode = 2
 
 [connection signal="config_cambiada" from="ScrollContainer/VBox/PanelAjustes" to="." method="on_config_cambiada"]

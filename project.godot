@@ -1,6 +1,6 @@
 ; Engine configuration file.
 ; It's best edited using the editor UI and not directly,
-; but the file format allows this.
+; since the parameters that go here are not all obvious.
 ;
 ; Format:
 ;   [section] ; section goes between []
@@ -8,12 +8,16 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="AOSprites"
 config/description="Procesador de Cuerpos para Argentum Online"
 run/main_scene="res://scenes/Main.tscn"
-config/features=PackedStringArray("4.2", "Forward Plus")
+config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://assets/head.png"
 
 [autoload]
@@ -24,11 +28,9 @@ SpriteData="*res://scripts/SpriteData.gd"
 
 window/size/viewport_width=1150
 window/size/viewport_height=800
-window/size/resizable=true
 window/size/min_width=900
 window/size/min_height=600
 
 [rendering]
 
-renderer/rendering_method="forward_plus"
 textures/canvas_textures/default_texture_filter=0
