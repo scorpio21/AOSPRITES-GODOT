@@ -56,6 +56,17 @@ AOSPRITES-GODOT/
     └── PanelCodigo.gd
 ```
 
+## Fixes Recientes (Marzo 2026)
+
+- **Drag & Drop**: Habilitado en la configuración del proyecto y corregido para que el sistema operativo pase los archivos correctamente a la ventana.
+- **FileDialog**: Se forzó el uso de ventanas nativas del OS (`gui_embed_subwindows = false`) para evitar que el diálogo se oculte al estar anidado en contenedores de scroll.
+- **Depuración**: Añadidos logs detallados en `PanelCargar.gd` para facilitar el rastreo de eventos en tiempo de ejecución.
+
+## Repositorio
+
+Puedes encontrar el código fuente y las últimas actualizaciones en:
+[https://github.com/scorpio21/AOSPRITES-GODOT](https://github.com/scorpio21/AOSPRITES-GODOT)
+
 ## Créditos
 
 Puerto de [AOSPRITES-WEB](https://github.com/BSG-Walter/AOSPRITES-WEB) a Godot 4.
