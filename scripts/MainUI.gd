@@ -10,6 +10,7 @@ extends Control
 @onready var panel_ajustes = $MainVBox/Tabs/TabTrabajo/VBox/PanelAjustes
 @onready var panel_preview = $MainVBox/Tabs/TabTrabajo/VBox/PanelPreview
 @onready var panel_codigo = $MainVBox/Tabs/TabCodigo/VBox/PanelCodigo
+@onready var panel_notas = $MainVBox/Tabs/TabNotas/VBox/PanelNotas
 @onready var timer_anim: Timer             = $TimerAnim
 @onready var timer_status: Timer           = $TimerStatus
 @onready var lbl_reloj: Label              = $MainVBox/StatusBar/HBox/LblReloj
@@ -77,6 +78,10 @@ func _ready() -> void:
 			panel_codigo.grh_text_cambiado.connect(func(): on_config_cambiada(false))
 		if panel_codigo.has_signal("reset_solicitado"):
 			panel_codigo.reset_solicitado.connect(_on_reset_solicitado)
+	
+	if panel_notas:
+		if panel_notas.has_signal("notas_cambiadas"):
+			panel_notas.notas_cambiadas.connect(_on_notas_cambiadas)
 	
 	if timer_anim:
 		timer_anim.timeout.connect(_on_timer_tick)
@@ -417,3 +422,9 @@ func _modificar_offset(dx: int, dy: int) -> void:
 
 func solicitar_modificar_offset(dx: int, dy: int) -> void:
 	_modificar_offset(dx, dy)
+
+# ── Panel de Notas ────────────────────────────────────────
+func _on_notas_cambiadas(texto: String) -> void:
+	# Las notas se mantienen en el panel, pero podríamos guardarlas junto con el proyecto
+	if _logger:
+		_logger.call("log_msg", "PanelNotas: notas actualizadas (" + str(texto.length()) + " chars)")

@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/PanelAjustes.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/PanelPreview.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/PanelCodigo.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/PanelNotas.tscn" id="6"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_statusbar"]
  bg_color = Color(0.208, 0.682, 0.886, 1)
@@ -123,6 +124,21 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
 [node name="PanelCodigo" parent="MainVBox/Tabs/TabCodigo/VBox" instance=ExtResource("5")]
+layout_mode = 2
+
+[node name="TabNotas" type="ScrollContainer" parent="MainVBox/Tabs"]
+layout_mode = 2
+tab_title = "5. Notas"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabNotas"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="PanelNotas" parent="MainVBox/Tabs/TabNotas/VBox" instance=ExtResource("6")]
 layout_mode = 2
 
 [node name="StatusBar" type="PanelContainer" parent="MainVBox"]
