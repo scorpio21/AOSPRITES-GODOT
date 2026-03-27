@@ -25,6 +25,11 @@ const _COLOR_BOTON_HOVER := Color(0.203922, 0.203922, 0.203922, 1.0)  # #343434
 const _COLOR_BOTON_PRESSED := Color(0.172549, 0.172549, 0.172549, 1.0) # #2C2C2C
 const _COLOR_BOTON_TEXTO := Color(1.0, 1.0, 1.0, 1.0)
 
+const _COLOR_BOTON_ANIM_NORMAL := Color(0.0, 1.0, 0.016, 1.0)
+const _COLOR_BOTON_ANIM_HOVER := Color(0.0, 1.0, 0.016, 1.0)
+const _COLOR_BOTON_ANIM_PRESSED := Color(0.0, 1.0, 0.016, 1.0)
+const _COLOR_BOTON_ANIM_TEXTO := Color(0.0, 0.0, 0.003, 1.0)
+
 func _ready() -> void:
 	await get_tree().process_frame
 	_main_ui = get_tree().get_root().get_node_or_null("Main")
@@ -190,20 +195,20 @@ func _construir_filas() -> void:
 
 		var btn_play := Button.new()
 		btn_play.text = "⏸️"
-		_estilizar_boton_control(btn_play)
+		_estilizar_boton_animacion(btn_play)
 		btn_play.pressed.connect(func(): _toggle_play(dir))
 		_btn_plays[dir] = btn_play
 		ctrl_row.add_child(btn_play)
 
 		var btn_prev := Button.new()
 		btn_prev.text = "⏮️"
-		_estilizar_boton_control(btn_prev)
+		_estilizar_boton_animacion(btn_prev)
 		btn_prev.pressed.connect(func(): _step_frame(dir, -1))
 		ctrl_row.add_child(btn_prev)
 
 		var btn_next := Button.new()
 		btn_next.text = "⏭️"
-		_estilizar_boton_control(btn_next)
+		_estilizar_boton_animacion(btn_next)
 		btn_next.pressed.connect(func(): _step_frame(dir, 1))
 		ctrl_row.add_child(btn_next)
 
@@ -396,6 +401,35 @@ func _estilizar_boton_control(btn: Button) -> void:
 	if pressed is StyleBoxFlat:
 		(pressed as StyleBoxFlat).bg_color = _COLOR_BOTON_PRESSED
 		(pressed as StyleBoxFlat).border_color = Color(0.30, 0.30, 0.30, 1.0)
+
+	btn.add_theme_stylebox_override("normal", normal)
+	btn.add_theme_stylebox_override("hover", hover)
+	btn.add_theme_stylebox_override("pressed", pressed)
+
+func _estilizar_boton_animacion(btn: Button) -> void:
+	if not btn:
+		return
+	btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	btn.custom_minimum_size = Vector2(120, 34)
+	btn.add_theme_color_override("font_color", _COLOR_BOTON_ANIM_TEXTO)
+	btn.add_theme_color_override("font_hover_color", _COLOR_BOTON_ANIM_TEXTO)
+	btn.add_theme_color_override("font_pressed_color", _COLOR_BOTON_ANIM_TEXTO)
+
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = _COLOR_BOTON_ANIM_NORMAL
+	normal.set_corner_radius_all(8)
+	normal.content_margin_left = 0
+	normal.content_margin_right = 0
+	normal.content_margin_top = 0
+	normal.content_margin_bottom = 0
+
+	var hover := normal.duplicate()
+	if hover is StyleBoxFlat:
+		(hover as StyleBoxFlat).bg_color = _COLOR_BOTON_ANIM_HOVER
+	var pressed := normal.duplicate()
+	if pressed is StyleBoxFlat:
+		(pressed as StyleBoxFlat).bg_color = _COLOR_BOTON_ANIM_PRESSED
 
 	btn.add_theme_stylebox_override("normal", normal)
 	btn.add_theme_stylebox_override("hover", hover)
