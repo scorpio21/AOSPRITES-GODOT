@@ -20,6 +20,11 @@ var _frame_containers: Dictionary = {} # dir → HFlowContainer con frame items
 var _frame_items: Dictionary = {}    # dir → Array de {rect, label, id}
 var _btn_plays: Dictionary = {}      # dir → Button ⏸️
 
+const _COLOR_BOTON_NORMAL := Color(0, 1, 0.101961, 1)
+const _COLOR_BOTON_HOVER := Color(0, 1, 0.101961, 1)
+const _COLOR_BOTON_PRESSED := Color(0, 1, 0.101961, 1)
+const _COLOR_BOTON_TEXTO := Color(1, 1, 1, 1)
+
 func _ready() -> void:
 	await get_tree().process_frame
 	_main_ui = get_tree().get_root().get_node_or_null("Main")
@@ -65,6 +70,7 @@ func _crear_controles_offset_inline(_item: Control, _frame_id: int) -> Control:
 
 	var btn_up_local := Button.new()
 	btn_up_local.text = "Arriba"
+	_estilizar_boton_control(btn_up_local)
 	btn_up_local.pressed.connect(func():
 		if _main_ui and _main_ui.has_method("solicitar_modificar_offset"):
 			_main_ui.solicitar_modificar_offset(0, 1)
@@ -76,6 +82,7 @@ func _crear_controles_offset_inline(_item: Control, _frame_id: int) -> Control:
 
 	var btn_left_local := Button.new()
 	btn_left_local.text = "Izquierda"
+	_estilizar_boton_control(btn_left_local)
 	btn_left_local.pressed.connect(func():
 		if _main_ui and _main_ui.has_method("solicitar_modificar_offset"):
 			_main_ui.solicitar_modificar_offset(1, 0)
@@ -84,6 +91,7 @@ func _crear_controles_offset_inline(_item: Control, _frame_id: int) -> Control:
 
 	var btn_down_local := Button.new()
 	btn_down_local.text = "Abajo"
+	_estilizar_boton_control(btn_down_local)
 	btn_down_local.pressed.connect(func():
 		if _main_ui and _main_ui.has_method("solicitar_modificar_offset"):
 			_main_ui.solicitar_modificar_offset(0, -1)
@@ -92,6 +100,7 @@ func _crear_controles_offset_inline(_item: Control, _frame_id: int) -> Control:
 
 	var btn_right_local := Button.new()
 	btn_right_local.text = "Derecha"
+	_estilizar_boton_control(btn_right_local)
 	btn_right_local.pressed.connect(func():
 		if _main_ui and _main_ui.has_method("solicitar_modificar_offset"):
 			_main_ui.solicitar_modificar_offset(-1, 0)
@@ -144,8 +153,11 @@ func _construir_filas() -> void:
 		frame_lbl.name = "FrameLbl"
 		frame_lbl.text = "1/1"
 		frame_lbl.position = Vector2(6, 6)
-		frame_lbl.add_theme_font_size_override("font_size", 11)
-		frame_lbl.add_theme_color_override("font_color", Color("#e0e0e0"))
+		frame_lbl.z_index = 10
+		frame_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame_lbl.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		frame_lbl.add_theme_font_size_override("font_size", 12)
+		frame_lbl.add_theme_color_override("font_color", Color("#ff0000"))
 		frame_lbl.add_theme_color_override("font_outline_color", Color("#000000"))
 		frame_lbl.add_theme_constant_override("outline_size", 2)
 		anim_wrap.add_child(frame_lbl)
@@ -156,17 +168,20 @@ func _construir_filas() -> void:
 
 		var btn_play := Button.new()
 		btn_play.text = "⏸️"
+		_estilizar_boton_control(btn_play)
 		btn_play.pressed.connect(func(): _toggle_play(dir))
 		_btn_plays[dir] = btn_play
 		ctrl_row.add_child(btn_play)
 
 		var btn_prev := Button.new()
 		btn_prev.text = "⏮️"
+		_estilizar_boton_control(btn_prev)
 		btn_prev.pressed.connect(func(): _step_frame(dir, -1))
 		ctrl_row.add_child(btn_prev)
 
 		var btn_next := Button.new()
 		btn_next.text = "⏭️"
+		_estilizar_boton_control(btn_next)
 		btn_next.pressed.connect(func(): _step_frame(dir, 1))
 		ctrl_row.add_child(btn_next)
 
@@ -258,6 +273,7 @@ func redibujar_animaciones() -> void:
 				var lbl := rect.get_parent().get_node_or_null("FrameLbl") if rect else null
 				if lbl:
 					lbl.text = "%d/%d" % [idx + 1, frames.size()]
+					_posicionar_contador_sobre_sprite(rect, lbl)
 
 func _crear_frame_item(dir: String, frame_id: int, flow: HFlowContainer) -> void:
 	var item := PanelContainer.new()
@@ -329,6 +345,36 @@ func _estilo_hover() -> StyleBoxFlat:
 	s.set_border_width_all(2)
 	return s
 
+
+func _estilizar_boton_control(btn: Button) -> void:
+	if not btn:
+		return
+	btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	btn.custom_minimum_size = Vector2(44, 32)
+	btn.add_theme_color_override("font_color", _COLOR_BOTON_TEXTO)
+	btn.add_theme_color_override("font_hover_color", _COLOR_BOTON_TEXTO)
+	btn.add_theme_color_override("font_pressed_color", _COLOR_BOTON_TEXTO)
+
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = _COLOR_BOTON_NORMAL
+	normal.set_corner_radius_all(6)
+	normal.content_margin_left = 0
+	normal.content_margin_right = 0
+	normal.content_margin_top = 0
+	normal.content_margin_bottom = 0
+
+	var hover := normal.duplicate()
+	if hover is StyleBoxFlat:
+		(hover as StyleBoxFlat).bg_color = _COLOR_BOTON_HOVER
+	var pressed := normal.duplicate()
+	if pressed is StyleBoxFlat:
+		(pressed as StyleBoxFlat).bg_color = _COLOR_BOTON_PRESSED
+
+	btn.add_theme_stylebox_override("normal", normal)
+	btn.add_theme_stylebox_override("hover", hover)
+	btn.add_theme_stylebox_override("pressed", pressed)
+
 func _aplicar_hover(item: Control, activo: bool) -> void:
 	if not item or not is_instance_valid(item):
 		return
@@ -398,6 +444,7 @@ func redibujar_frames() -> void:
 				var lbl := rect.get_parent().get_node_or_null("FrameLbl") if rect else null
 				if lbl:
 					lbl.text = "%d/%d" % [idx + 1, frames.size()]
+					_posicionar_contador_sobre_sprite(rect, lbl)
 
 		# Redibujar frames individuales
 		for entry in _frame_items.get(dir, []):
@@ -411,6 +458,33 @@ func redibujar_frames() -> void:
 				var r: TextureRect = entry["rect"]
 				r.texture = tex
 				r.custom_minimum_size = Vector2(img.get_width(), img.get_height())
+
+func _posicionar_contador_sobre_sprite(rect: TextureRect, lbl: Label) -> void:
+	if not rect or not lbl:
+		return
+	if not rect.texture:
+		return
+	var wrap := rect.get_parent() as Control
+	if not wrap:
+		return
+
+	var tex_w := float(rect.texture.get_width())
+	var tex_h := float(rect.texture.get_height())
+	if tex_w <= 0.0 or tex_h <= 0.0:
+		return
+
+	var w := float(wrap.size.x)
+	var h := float(wrap.size.y)
+	if w <= 0.0 or h <= 0.0:
+		return
+
+	var escala: float = min(w / tex_w, h / tex_h)
+	var draw_w: float = tex_w * escala
+	var draw_h: float = tex_h * escala
+	var x0: float = (w - draw_w) * 0.5
+	var y0: float = (h - draw_h) * 0.5
+	lbl.position = Vector2(x0 + 6.0, y0 + 6.0)
+	lbl.z_index = 10
 
 # ── Controles de reproducción ─────────────────────────────
 func _toggle_play(dir: String) -> void:

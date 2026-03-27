@@ -47,6 +47,13 @@ La versión que se muestra en la barra inferior se toma automáticamente de `pro
 - `application/config/version`
 - `application/config/edition`
 
+## Previsualización (controles)
+
+En la solapa de previsualización:
+
+- El contador `frame/total` se muestra superpuesto sobre el sprite.
+- Los botones de reproducción/anterior/siguiente usan un estilo personalizado.
+
 ## Estructura del proyecto
 
 ```text
