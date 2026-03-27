@@ -1,5 +1,9 @@
 # AOSprites — Procesador de Cuerpos (Godot 4)
 
+<p align="center">
+  <img src="img/menu.png" width="400" alt="Menú de Ayuda con Instrucciones"/>
+</p>
+
 Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online (AO)**, desarrollada con **Godot 4**. Es una versión standalone del proyecto [AOSPRITES-WEB](https://github.com/BSG-Walter/AOSPRITES-WEB).
 
 ## Características
@@ -9,7 +13,7 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 - 🎨 Eliminación de fondo con tolerancia por color
 - 🖼️ Previsualización animada de las 4 direcciones (Abajo, Arriba, Izquierda, Derecha)
 - 🖱️ Edición de offset por frame con clic y/o teclas de flecha
-- 📝 Generación automática de `Graficos.ini` y `Cuerpos.ini` en formato AO
+- 📝 Generación de código fuente (texto) compatible con `Graficos.ini` y `Cuerpos.ini` de AO
 - 💾 Descarga de imagen procesada en PNG o BMP
 
 ## Requisitos
