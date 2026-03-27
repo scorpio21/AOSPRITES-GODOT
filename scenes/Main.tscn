@@ -1,33 +1,34 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://bcd5isd64tpw6"]
 
-[ext_resource type="Script" path="res://scripts/MainUI.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/PanelCargar.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/PanelAjustes.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/PanelPreview.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/PanelCodigo.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://scenes/PanelNotas.tscn" id="6"]
+[ext_resource type="PackedScene" uid="uid://c4notas12345" path="res://scenes/PanelNotas.tscn" id="6"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_statusbar"]
- bg_color = Color(0.208, 0.682, 0.886, 1)
+bg_color = Color(0.208, 0.682, 0.886, 1)
 
-[node name="Main" type="Control" script=ExtResource("1")]
+[node name="Main" type="Control" unique_id=556376488]
+layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="BG" type="ColorRect" parent="."]
+[node name="BG" type="ColorRect" parent="." unique_id=1126005591]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.071, 0.071, 0.071, 1)
 
-[node name="TimerAnim" type="Timer" parent="."]
+[node name="TimerAnim" type="Timer" parent="." unique_id=51427381]
 wait_time = 0.1
-autostart = false
 
-[node name="TimerStatus" type="Timer" parent="."]
-wait_time = 1.0
-autostart = false
+[node name="TimerStatus" type="Timer" parent="." unique_id=1088522055]
 
-[node name="DebugLog" type="Label" parent="."]
+[node name="DebugLog" type="Label" parent="." unique_id=1220039600]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -42,7 +43,7 @@ text = "Esperando acciones..."
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MainVBox" type="VBoxContainer" parent="."]
+[node name="MainVBox" type="VBoxContainer" parent="." unique_id=1576662212]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -51,125 +52,126 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="TopBar" type="HBoxContainer" parent="MainVBox"]
+[node name="TopBar" type="HBoxContainer" parent="MainVBox" unique_id=385538384]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="Spacer" type="Control" parent="MainVBox/TopBar"]
+[node name="Spacer" type="Control" parent="MainVBox/TopBar" unique_id=2740415]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MenuAyuda" type="MenuButton" parent="MainVBox/TopBar"]
+[node name="MenuAyuda" type="MenuButton" parent="MainVBox/TopBar" unique_id=501002766]
 layout_mode = 2
 text = "Ayuda"
 
-[node name="Header" type="Label" parent="MainVBox"]
+[node name="Header" type="Label" parent="MainVBox" unique_id=1858240376]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.298, 0.686, 0.314, 1)
+theme_override_font_sizes/font_size = 22
 text = "Procesador de Cuerpos (AO)"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_color = Color(0.298, 0.686, 0.314, 1)
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_bottom = 10
 
-[node name="Tabs" type="TabContainer" parent="MainVBox"]
+[node name="Tabs" type="TabContainer" parent="MainVBox" unique_id=778504148]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+current_tab = 0
 
-[node name="TabCargar" type="ScrollContainer" parent="MainVBox/Tabs"]
+[node name="TabCargar" type="ScrollContainer" parent="MainVBox/Tabs" unique_id=1295166102]
 layout_mode = 2
-tab_title = "1. Cargar Gráfico (.png)"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+metadata/_tab_index = 0
 
-[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabCargar"]
+[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabCargar" unique_id=1963090559]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="PanelCargar" parent="MainVBox/Tabs/TabCargar/VBox" instance=ExtResource("2")]
+[node name="PanelCargar" parent="MainVBox/Tabs/TabCargar/VBox" unique_id=1731371666 instance=ExtResource("2")]
 layout_mode = 2
 
-[node name="TabTrabajo" type="ScrollContainer" parent="MainVBox/Tabs"]
+[node name="TabTrabajo" type="ScrollContainer" parent="MainVBox/Tabs" unique_id=979057639]
+visible = false
 layout_mode = 2
-tab_title = "2. Ajustes + Previsualización"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+metadata/_tab_index = 1
 
-[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabTrabajo"]
+[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabTrabajo" unique_id=1865914565]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="PanelAjustes" parent="MainVBox/Tabs/TabTrabajo/VBox" instance=ExtResource("3")]
+[node name="PanelAjustes" parent="MainVBox/Tabs/TabTrabajo/VBox" unique_id=476255801 instance=ExtResource("3")]
 layout_mode = 2
 
-[node name="PanelPreview" parent="MainVBox/Tabs/TabTrabajo/VBox" instance=ExtResource("4")]
+[node name="PanelPreview" parent="MainVBox/Tabs/TabTrabajo/VBox" unique_id=1787437469 instance=ExtResource("4")]
 layout_mode = 2
 
-[node name="TabCodigo" type="ScrollContainer" parent="MainVBox/Tabs"]
+[node name="TabCodigo" type="ScrollContainer" parent="MainVBox/Tabs" unique_id=1939698544]
+visible = false
 layout_mode = 2
-tab_title = "4. Código Generado"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+metadata/_tab_index = 2
 
-[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabCodigo"]
+[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabCodigo" unique_id=1038606855]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="PanelCodigo" parent="MainVBox/Tabs/TabCodigo/VBox" instance=ExtResource("5")]
+[node name="PanelCodigo" parent="MainVBox/Tabs/TabCodigo/VBox" unique_id=556880197 instance=ExtResource("5")]
 layout_mode = 2
 
-[node name="TabNotas" type="ScrollContainer" parent="MainVBox/Tabs"]
+[node name="TabNotas" type="ScrollContainer" parent="MainVBox/Tabs" unique_id=1413083439]
+visible = false
 layout_mode = 2
-tab_title = "5. Notas"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+metadata/_tab_index = 3
 
-[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabNotas"]
+[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabNotas" unique_id=712043154]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="PanelNotas" parent="MainVBox/Tabs/TabNotas/VBox" instance=ExtResource("6")]
+[node name="PanelNotas" parent="MainVBox/Tabs/TabNotas/VBox" unique_id=1436439752 instance=ExtResource("6")]
 layout_mode = 2
 
-[node name="StatusBar" type="PanelContainer" parent="MainVBox"]
-layout_mode = 2
+[node name="StatusBar" type="PanelContainer" parent="MainVBox" unique_id=391703926]
 custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_statusbar")
 
-[node name="HBox" type="HBoxContainer" parent="MainVBox/StatusBar"]
+[node name="HBox" type="HBoxContainer" parent="MainVBox/StatusBar" unique_id=45172796]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="LblEstado" type="Label" parent="MainVBox/StatusBar/HBox"]
+[node name="LblEstado" type="Label" parent="MainVBox/StatusBar/HBox" unique_id=1848660456]
 layout_mode = 2
-text = "Listo"
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "Listo"
 
-[node name="Spacer" type="Control" parent="MainVBox/StatusBar/HBox"]
+[node name="Spacer" type="Control" parent="MainVBox/StatusBar/HBox" unique_id=358462874]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LblReloj" type="Label" parent="MainVBox/StatusBar/HBox"]
+[node name="LblReloj" type="Label" parent="MainVBox/StatusBar/HBox" unique_id=68334696]
 layout_mode = 2
-text = "🕒 00:00:00"
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-
-[node name="LblVersion" type="Label" parent="MainVBox/StatusBar/HBox"]
-layout_mode = 2
-text = "v1.0 PRO"
 theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+text = "🕒 00:00:00"
 
+[node name="LblVersion" type="Label" parent="MainVBox/StatusBar/HBox" unique_id=1489613408]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "v1.0 PRO"

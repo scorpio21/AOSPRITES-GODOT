@@ -20,10 +20,10 @@ var _frame_containers: Dictionary = {} # dir → HFlowContainer con frame items
 var _frame_items: Dictionary = {}    # dir → Array de {rect, label, id}
 var _btn_plays: Dictionary = {}      # dir → Button ⏸️
 
-const _COLOR_BOTON_NORMAL := Color(0, 1, 0.101961, 1)
-const _COLOR_BOTON_HOVER := Color(0, 1, 0.101961, 1)
-const _COLOR_BOTON_PRESSED := Color(0, 1, 0.101961, 1)
-const _COLOR_BOTON_TEXTO := Color(1, 1, 1, 1)
+const _COLOR_BOTON_NORMAL := Color(0.0, 1.0, 0.016, 1.0)
+const _COLOR_BOTON_HOVER := Color(0.0, 1.0, 0.016, 1.0)
+const _COLOR_BOTON_PRESSED := Color(0.0, 1.0, 0.016, 1.0)
+const _COLOR_BOTON_TEXTO := Color(0.0, 0.0, 0.003, 1.0)
 
 func _ready() -> void:
 	await get_tree().process_frame
@@ -306,8 +306,8 @@ func _crear_frame_item(dir: String, frame_id: int, flow: HFlowContainer) -> void
 
 	var lbl := Label.new()
 	lbl.text = "Grh%d" % frame_id
-	lbl.add_theme_font_size_override("font_size", 10)
-	lbl.add_theme_color_override("font_color", Color("#aaaaaa"))
+	lbl.add_theme_font_size_override("font_size", 15)
+	lbl.add_theme_color_override("font_color", Color("4caf50"))  # Verde para GrhXXXX
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
@@ -358,6 +358,8 @@ func _estilizar_boton_control(btn: Button) -> void:
 
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = _COLOR_BOTON_NORMAL
+	normal.border_color = Color(0.15, 0.15, 0.15, 1)
+	normal.set_border_width_all(1)
 	normal.set_corner_radius_all(6)
 	normal.content_margin_left = 0
 	normal.content_margin_right = 0
@@ -367,9 +369,11 @@ func _estilizar_boton_control(btn: Button) -> void:
 	var hover := normal.duplicate()
 	if hover is StyleBoxFlat:
 		(hover as StyleBoxFlat).bg_color = _COLOR_BOTON_HOVER
+		(hover as StyleBoxFlat).border_color = Color(0.2, 0.2, 0.2, 1)
 	var pressed := normal.duplicate()
 	if pressed is StyleBoxFlat:
 		(pressed as StyleBoxFlat).bg_color = _COLOR_BOTON_PRESSED
+		(pressed as StyleBoxFlat).border_color = Color(0.1, 0.1, 0.1, 1)
 
 	btn.add_theme_stylebox_override("normal", normal)
 	btn.add_theme_stylebox_override("hover", hover)
