@@ -14,6 +14,7 @@ extends Control
 @onready var timer_status: Timer           = $TimerStatus
 @onready var lbl_reloj: Label              = $MainVBox/StatusBar/HBox/LblReloj
 @onready var lbl_version: Label            = $MainVBox/StatusBar/HBox/LblVersion
+@onready var lbl_estado: Label             = $MainVBox/StatusBar/HBox/LblEstado
 
 # ── Estado interno ────────────────────────────────────────
 var data
@@ -89,6 +90,7 @@ func _inicializar_statusbar() -> void:
 		var sufijo := " " + edicion if edicion != "" else ""
 		lbl_version.text = "v" + version + sufijo
 	_actualizar_reloj()
+	_actualizar_estado_statusbar()
 	if timer_status:
 		if not timer_status.timeout.is_connected(_on_timer_status_tick):
 			timer_status.timeout.connect(_on_timer_status_tick)
@@ -97,6 +99,7 @@ func _inicializar_statusbar() -> void:
 
 func _on_timer_status_tick() -> void:
 	_actualizar_reloj()
+	_actualizar_estado_statusbar()
 
 
 func _actualizar_reloj() -> void:
@@ -107,6 +110,37 @@ func _actualizar_reloj() -> void:
 	var mm: String = str(int(t.get("minute", 0))).pad_zeros(2)
 	var ss: String = str(int(t.get("second", 0))).pad_zeros(2)
 	lbl_reloj.text = "🕒 %s:%s:%s" % [hh, mm, ss]
+
+
+func _actualizar_estado_statusbar() -> void:
+	if not lbl_estado:
+		return
+	if not data:
+		lbl_estado.text = "Listo"
+		return
+
+	var partes: Array[String] = []
+
+	var nombre := str(data.get("working_filename", "")).strip_edges()
+	if nombre != "":
+		partes.append("Img: " + nombre)
+	else:
+		partes.append("Sin imagen")
+
+	var img: Image = data.get("working_image", null)
+	if img:
+		partes.append("%dx%d" % [img.get_width(), img.get_height()])
+
+	var zoom := data.config.get("zoom", 0)
+	partes.append("Zoom: " + str(zoom))
+
+	var sel: int = int(data.get("selected_grh_id", -1))
+	if sel >= 0:
+		partes.append("Sel: Grh" + str(sel))
+	else:
+		partes.append("Sel: -")
+
+	lbl_estado.text = " | ".join(partes)
 
 func _exit_tree() -> void:
 	if is_instance_valid(_about_window):

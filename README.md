@@ -47,6 +47,13 @@ La versión que se muestra en la barra inferior se toma automáticamente de `pro
 - `application/config/version`
 - `application/config/edition`
 
+La StatusBar también muestra el estado actual:
+
+- Imagen cargada
+- Resolución final
+- Zoom
+- Frame seleccionado
+
 ## Previsualización (controles)
 
 En la solapa de previsualización:
