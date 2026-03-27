@@ -16,6 +16,7 @@ const _INSTRUCCIONES_BB := """
 • Establece el tamaño de frame (W × H) típicamente 32×32 o 64×64
 • Configura la velocidad de animación en milisegundos
 • Define el rango de Grh (desde/hasta) para la indexación
+• [b]Opción importante:[/b] Activa "Usar Grh Long (4 bytes)" si tu cliente AO usa IDs de Grh en formato Long (4 bytes). Si no, usa Integer (2 bytes).
 
 [b]3. Previsualizar[/b]
 • Selecciona un frame haciendo clic en la cuadrícula

@@ -11,7 +11,7 @@ signal config_cambiada(regenerar: bool)
 @onready var spin_speed: SpinBox      = $Margin/VBox/GridTop/FilaConfig/ColVel/SpinSpeed
 @onready var spin_zoom: SpinBox       = $Margin/VBox/GridTop/FilaConfig/ColZoom/SpinZoom
 @onready var check_grid: CheckBox       = $Margin/VBox/GridTop/FilaConfig/CheckGrid
-@onready var check_grh_long: CheckBox  = $Margin/VBox/GridTop/FilaConfig/CheckGrhLong
+@onready var check_grh_long: CheckBox  = $Margin/VBox/GridTop/FilaConfig2/CheckGrhLong
 @onready var spin_hox: SpinBox        = $Margin/VBox/GridOffsets/ColHox/SpinHox
 @onready var spin_hoy: SpinBox        = $Margin/VBox/GridOffsets/ColHoy/SpinHoy
 

@@ -119,12 +119,20 @@ size_flags_horizontal = 3
 text = "Mostrar Grilla (Zoom >= 3)"
 button_pressed = true
 
-[node name="CheckGrhLong" type="CheckBox" parent="Margin/VBox/GridTop/FilaConfig"]
+[node name="FilaConfig2" type="HBoxContainer" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="CheckGrhLong" type="CheckBox" parent="Margin/VBox/GridTop/FilaConfig2"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Usar Grh Long (4 bytes para .ind)"
 button_pressed = false
 tooltip_text = "Si activado, usa 4 bytes para IDs de Grh (Long). Si desactivado, usa 2 bytes (Integer). Depende del cliente AO."
+
+[node name="Spacer" type="Control" parent="Margin/VBox/GridTop/FilaConfig2"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="SepOffsets" type="HSeparator" parent="Margin/VBox"]
 layout_mode = 2
