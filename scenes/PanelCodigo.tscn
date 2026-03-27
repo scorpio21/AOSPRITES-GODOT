@@ -60,6 +60,11 @@ text = "Reset/Limpiar"
 layout_mode = 2
 text = "Copiar Graficos.ini"
 
+[node name="BtnExportarInd" type="Button" parent="Margin/VBox/HBox/VBoxGrh"]
+layout_mode = 2
+text = "Exportar .ind (Binario)"
+tooltip_text = "Exporta el archivo Graficos.ind en formato binario compatible con el cliente AO. Usa Integer o Long según la configuración en Ajustes."
+
 [node name="GrhEdit" type="TextEdit" parent="Margin/VBox/HBox/VBoxGrh"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 300)
@@ -105,3 +110,9 @@ title = "Guardar Cuerpos.ini"
 file_mode = 4
 access = 2
 filters = PackedStringArray("*.ini ; INI")
+
+[node name="DialogGuardarInd" type="FileDialog" parent="."]
+title = "Exportar Graficos.ind"
+file_mode = 4
+access = 2
+filters = PackedStringArray("*.ind ; IND")

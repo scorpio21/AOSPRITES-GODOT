@@ -28,6 +28,11 @@ const _HELP_WINDOW_SCENE_PATH: String = "res://scenes/HelpWindow.tscn"
 var _about_window: Window = null
 var _help_window: Window = null
 
+var _fire_overlay: ColorRect = null
+var _fire_material: ShaderMaterial = null
+var _tab_bar: TabBar = null
+var _ultimo_tab_hover: int = -1
+
 func _ready() -> void:
 	# Failsafe: Imprimir a consola nativa primero
 	print("!!! MainUI: _ready() START !!!")
@@ -78,10 +83,18 @@ func _ready() -> void:
 			panel_codigo.grh_text_cambiado.connect(func(): on_config_cambiada(false))
 		if panel_codigo.has_signal("reset_solicitado"):
 			panel_codigo.reset_solicitado.connect(_on_reset_solicitado)
+		if panel_codigo.has_signal("exportar_ind_solicitado"):
+			panel_codigo.exportar_ind_solicitado.connect(_on_exportar_ind_solicitado)
 	
 	if panel_notas:
 		if panel_notas.has_signal("notas_cambiadas"):
 			panel_notas.notas_cambiadas.connect(_on_notas_cambiadas)
+	
+	if tabs:
+		if not tabs.tab_changed.is_connected(_on_tab_changed):
+			tabs.tab_changed.connect(_on_tab_changed)
+		_inicializar_overlay_fuego()
+		_inicializar_tabbar_hover()
 	
 	if timer_anim:
 		timer_anim.timeout.connect(_on_timer_tick)
@@ -91,6 +104,8 @@ func _ready() -> void:
 	if _logger:
 		_logger.call("log_msg", "MainUI: _ready() completo")
 	print("!!! MainUI: _ready() END !!!")
+	if tabs:
+		_on_tab_changed(tabs.current_tab)
 
 
 func _inicializar_statusbar() -> void:
@@ -331,7 +346,7 @@ func on_config_cambiada(regenerar: bool) -> void:
 			if anim_id <= 0 or int(anim_entry.get("type", 0)) != 2:
 				faltantes.append(str(dir))
 
-		var msg_ok := "Aplicado OK: %d Grh estáticos, %d animaciones" % [count_estaticos, count_anims]
+		var msg_ok := "Aplicado OK: %d Grhs estáticos, %d animaciones" % [count_estaticos, count_anims]
 		if faltantes.size() > 0:
 			panel_codigo.mostrar_info(msg_ok + " | Faltan animaciones: " + ", ".join(faltantes))
 		else:
@@ -422,6 +437,225 @@ func _modificar_offset(dx: int, dy: int) -> void:
 
 func solicitar_modificar_offset(dx: int, dy: int) -> void:
 	_modificar_offset(dx, dy)
+
+func _inicializar_overlay_fuego() -> void:
+	if _fire_overlay:
+		return
+	_fire_overlay = ColorRect.new()
+	_fire_overlay.name = "FireOverlay"
+	# No usar anchors opuestos en top_level: si no, Godot fuerza el tamaño y tapa toda la pantalla.
+	_fire_overlay.anchor_left = 0.0
+	_fire_overlay.anchor_top = 0.0
+	_fire_overlay.anchor_right = 0.0
+	_fire_overlay.anchor_bottom = 0.0
+	_fire_overlay.offset_left = 0.0
+	_fire_overlay.offset_top = 0.0
+	_fire_overlay.offset_right = 0.0
+	_fire_overlay.offset_bottom = 0.0
+	_fire_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fire_overlay.visible = false
+	_fire_overlay.modulate = Color(1, 1, 1, 0)
+	_fire_overlay.z_index = 100
+	_fire_overlay.top_level = true
+	get_tree().root.add_child(_fire_overlay)
+
+	var shader := Shader.new()
+	shader.code = """
+shader_type canvas_item;
+
+uniform float intensidad : hint_range(0.0, 2.0) = 1.0;
+uniform float velocidad : hint_range(0.0, 5.0) = 1.2;
+uniform vec4 color_base : source_color = vec4(1.0, 0.25, 0.05, 1.0);
+uniform vec4 color_alto : source_color = vec4(1.0, 0.85, 0.15, 1.0);
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	float a = hash(i);
+	float b = hash(i + vec2(1.0, 0.0));
+	float c = hash(i + vec2(0.0, 1.0));
+	float d = hash(i + vec2(1.0, 1.0));
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+float fbm(vec2 p) {
+	float v = 0.0;
+	float a = 0.5;
+	for (int i = 0; i < 4; i++) {
+		v += a * noise(p);
+		p *= 2.0;
+		a *= 0.5;
+	}
+	return v;
+}
+
+void fragment() {
+	vec2 uv = UV;
+	float t = TIME * velocidad;
+
+	// Distorsión horizontal suave + subida
+	float n = fbm(vec2(uv.x * 5.0, uv.y * 3.0 - t * 1.5));
+	float wobble = (n - 0.5) * 0.18;
+	uv.x += wobble;
+
+	// Más intensidad cerca de la parte inferior (uv.y == 1.0)
+	float base = smoothstep(0.0, 1.0, uv.y);
+
+	// Forma de "llama" (bandas verticales)
+	float flame = fbm(vec2(uv.x * 6.0 + t * 0.6, uv.y * 4.0 - t * 2.2));
+	flame = pow(flame, 1.6);
+
+	float mask = base * flame * intensidad;
+	mask = clamp(mask, 0.0, 1.0);
+
+	// Color según altura
+	vec4 col = mix(color_base, color_alto, pow(base, 0.35));
+
+	COLOR = vec4(col.rgb, mask);
+}
+"""
+
+	_fire_material = ShaderMaterial.new()
+	_fire_material.shader = shader
+	_fire_overlay.material = _fire_material
+
+func _actualizar_rect_overlay_para_contenido_tabs() -> void:
+	if not tabs or not _fire_overlay:
+		return
+	
+	# Rectángulos globales
+	var tabs_global: Rect2 = tabs.get_global_rect()
+	var tab_bar_global: Rect2 = Rect2()
+	if _tab_bar:
+		tab_bar_global = _tab_bar.get_global_rect()
+	
+	# Calcular el área de contenido: debajo del TabBar, dentro del TabContainer
+	# La Y de inicio es la parte inferior del TabBar
+	var contenido_y: float = tab_bar_global.position.y + tab_bar_global.size.y
+	
+	# La altura es desde esa Y hasta el final del TabContainer
+	var contenido_altura: float = (tabs_global.position.y + tabs_global.size.y) - contenido_y
+	
+	# Asegurar valores no negativos
+	contenido_altura = max(contenido_altura, 0.0)
+	
+	# Resetear anchors para usar posición y tamaño absolutos
+	_fire_overlay.anchor_left = 0.0
+	_fire_overlay.anchor_top = 0.0
+	_fire_overlay.anchor_right = 0.0
+	_fire_overlay.anchor_bottom = 0.0
+	_fire_overlay.offset_left = 0.0
+	_fire_overlay.offset_top = 0.0
+	_fire_overlay.offset_right = 0.0
+	_fire_overlay.offset_bottom = 0.0
+	
+	# Aplicar posición y tamaño globales
+	_fire_overlay.global_position = Vector2(tabs_global.position.x, contenido_y)
+	_fire_overlay.size = Vector2(tabs_global.size.x, contenido_altura)
+	
+	print("DEBUG FireOverlay: pos=", _fire_overlay.global_position, " size=", _fire_overlay.size)
+	print("DEBUG tabs=", tabs_global, " tab_bar=", tab_bar_global)
+
+func _disparar_overlay_fuego() -> void:
+	if not _fire_overlay:
+		return
+	_fire_overlay.visible = true
+	_fire_overlay.modulate.a = 0.0
+	if _fire_material:
+		_fire_material.set_shader_parameter("intensidad", 1.0)
+		_fire_material.set_shader_parameter("velocidad", 1.2)
+	var tween := create_tween()
+	tween.tween_property(_fire_overlay, "modulate:a", 1.0, 0.08)
+	tween.tween_property(_fire_overlay, "modulate:a", 0.0, 0.24)
+	tween.tween_callback(func():
+		if _fire_overlay:
+			_fire_overlay.visible = false
+	)
+
+func _on_tab_changed(_tab_index: int) -> void:
+	if not tabs:
+		return
+	
+	var current_tab: Control = tabs.get_current_tab_control()
+	if not current_tab:
+		return
+	if not _fire_overlay:
+		_inicializar_overlay_fuego()
+	# Efecto de fuego desactivado temporalmente (posicionamiento no funciona correctamente)
+	# call_deferred("_actualizar_rect_overlay_para_contenido_tabs")
+	# call_deferred("_disparar_overlay_fuego")
+	
+	# Aplicar efecto de fade in
+	var tween := create_tween()
+	current_tab.modulate.a = 0.5
+	tween.tween_property(current_tab, "modulate:a", 1.0, 0.15)
+	
+	if _logger:
+		_logger.call("log_msg", "Cambiado a solapa: " + str(_tab_index))
+
+func _inicializar_tabbar_hover() -> void:
+	if not tabs:
+		return
+	_tab_bar = tabs.get_tab_bar()
+	if not _tab_bar:
+		return
+	if not _tab_bar.gui_input.is_connected(_on_tabbar_gui_input):
+		_tab_bar.gui_input.connect(_on_tabbar_gui_input)
+
+func _on_tabbar_gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseMotion):
+		return
+	if not _tab_bar:
+		return
+	var mm: InputEventMouseMotion = event as InputEventMouseMotion
+	var idx: int = -1
+	for i in range(_tab_bar.tab_count):
+		var r: Rect2 = _tab_bar.get_tab_rect(i)
+		if r.has_point(mm.position):
+			idx = i
+			break
+	if idx < 0:
+		_ultimo_tab_hover = -1
+		return
+	if idx == _ultimo_tab_hover:
+		return
+	_ultimo_tab_hover = idx
+	# Efecto de fuego en hover desactivado temporalmente
+	# if tabs:
+	# 	call_deferred("_actualizar_rect_overlay_para_contenido_tabs")
+	# 	if _fire_material:
+	# 		_fire_material.set_shader_parameter("intensidad", 0.65)
+	# 	call_deferred("_disparar_overlay_fuego")
+
+# ── Exportar .ind (binario) ────────────────────────────────
+func _on_exportar_ind_solicitado(ruta: String) -> void:
+	if not data or not data.grh_data:
+		panel_codigo.mostrar_error("No hay datos de Grh para exportar")
+		return
+	
+	# Crear encoder y configurar según los ajustes
+	var encoder := BinaryEncoder.new()
+	encoder.usar_grh_long = data.config.get("grh_long", false)
+	
+	# Convertir datos al formato binario
+	var datos_binarios := BinaryEncoder.convertir_datos_grh(data.grh_data)
+	var max_grh := BinaryEncoder.calcular_max_grh(datos_binarios)
+	
+	# Generar archivo
+	var resultado := encoder.generar_graficos_ind(datos_binarios, max_grh, ruta)
+	
+	if resultado["ok"]:
+		var tipo_str := "Long (4 bytes)" if encoder.usar_grh_long else "Integer (2 bytes)"
+		panel_codigo.mostrar_ok("Exportado: %d Grhs (%s)" % [resultado["cantidad"], tipo_str])
+		if _logger:
+			_logger.call("log_msg", "Exportado Graficos.ind: " + ruta + " con " + str(resultado["cantidad"]) + " Grhs")
+	else:
+		panel_codigo.mostrar_error("Error al exportar: " + resultado["error"])
 
 # ── Panel de Notas ────────────────────────────────────────
 func _on_notas_cambiadas(texto: String) -> void:

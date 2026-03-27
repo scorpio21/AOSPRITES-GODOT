@@ -10,7 +10,8 @@ signal config_cambiada(regenerar: bool)
 @onready var spin_height: SpinBox     = $Margin/VBox/GridTop/FilaConfig/ColAlto/SpinHeight
 @onready var spin_speed: SpinBox      = $Margin/VBox/GridTop/FilaConfig/ColVel/SpinSpeed
 @onready var spin_zoom: SpinBox       = $Margin/VBox/GridTop/FilaConfig/ColZoom/SpinZoom
-@onready var check_grid: CheckBox     = $Margin/VBox/GridTop/FilaConfig/CheckGrid
+@onready var check_grid: CheckBox       = $Margin/VBox/GridTop/FilaConfig/CheckGrid
+@onready var check_grh_long: CheckBox  = $Margin/VBox/GridTop/FilaConfig/CheckGrhLong
 @onready var spin_hox: SpinBox        = $Margin/VBox/GridOffsets/ColHox/SpinHox
 @onready var spin_hoy: SpinBox        = $Margin/VBox/GridOffsets/ColHoy/SpinHoy
 
@@ -28,6 +29,7 @@ func _ready() -> void:
 	spin_speed.value    = cfg["speed"]
 	spin_zoom.value     = cfg["zoom"]
 	check_grid.button_pressed = cfg["show_grid"]
+	check_grh_long.button_pressed = cfg.get("grh_long", false)
 	spin_hox.value      = cfg["hox"]
 	spin_hoy.value      = cfg["hoy"]
 
@@ -39,6 +41,7 @@ func _ready() -> void:
 	for ctrl in [spin_speed, spin_zoom, spin_hox, spin_hoy]:
 		ctrl.value_changed.connect(func(_v): _actualizar(false))
 	check_grid.toggled.connect(func(_v): _actualizar(false))
+	check_grh_long.toggled.connect(func(_v): _actualizar(false))
 
 func _actualizar(regenerar: bool) -> void:
 	if not _data:
@@ -50,6 +53,7 @@ func _actualizar(regenerar: bool) -> void:
 	cfg["speed"]    = int(spin_speed.value)
 	cfg["zoom"]     = spin_zoom.value
 	cfg["show_grid"]= check_grid.button_pressed
+	cfg["grh_long"] = check_grh_long.button_pressed
 	cfg["hox"]      = int(spin_hox.value)
 	cfg["hoy"]      = int(spin_hoy.value)
 	config_cambiada.emit(regenerar)

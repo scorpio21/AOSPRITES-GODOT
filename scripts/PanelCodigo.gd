@@ -10,13 +10,16 @@ extends PanelContainer
 @onready var btn_aplicar_grh: Button  = $Margin/VBox/HBox/VBoxGrh/BtnAplicarGrh
 @onready var btn_reset: Button        = $Margin/VBox/HBox/VBoxGrh/BtnReset
 @onready var btn_copiar_grh: Button   = $Margin/VBox/HBox/VBoxGrh/BtnCopiarGrh
+@onready var btn_exportar_ind: Button = $Margin/VBox/HBox/VBoxGrh/BtnExportarInd
 @onready var btn_guardar_body: Button = $Margin/VBox/HBox/VBoxBody/BtnGuardarBody
 @onready var btn_copiar_body: Button  = $Margin/VBox/HBox/VBoxBody/BtnCopiarBody
 @onready var dialog_guardar_grh: FileDialog  = $DialogGuardarGrh
 @onready var dialog_guardar_body: FileDialog = $DialogGuardarBody
+@onready var dialog_guardar_ind: FileDialog  = $DialogGuardarInd
 
 signal grh_text_cambiado
 signal reset_solicitado
+signal exportar_ind_solicitado(ruta: String)
 
 var _ultima_ruta_grh: String = ""
 var _ultima_ruta_body: String = ""
@@ -36,10 +39,14 @@ func _ready() -> void:
 		btn_guardar_body.pressed.connect(_on_btn_guardar_body)
 	if btn_copiar_body:
 		btn_copiar_body.pressed.connect(_on_btn_copiar_body)
+	if btn_exportar_ind:
+		btn_exportar_ind.pressed.connect(_on_btn_exportar_ind)
 	if dialog_guardar_grh and not dialog_guardar_grh.file_selected.is_connected(_on_guardar_grh_file_selected):
 		dialog_guardar_grh.file_selected.connect(_on_guardar_grh_file_selected)
 	if dialog_guardar_body and not dialog_guardar_body.file_selected.is_connected(_on_guardar_body_file_selected):
 		dialog_guardar_body.file_selected.connect(_on_guardar_body_file_selected)
+	if dialog_guardar_ind and not dialog_guardar_ind.file_selected.is_connected(_on_guardar_ind_file_selected):
+		dialog_guardar_ind.file_selected.connect(_on_guardar_ind_file_selected)
 
 func _on_grh_editado() -> void:
 	# No aplicar al preview en cada tecla. Se aplica al presionar el botón "Aplicar".
@@ -58,6 +65,16 @@ func _on_btn_copiar_grh() -> void:
 func _on_btn_copiar_body() -> void:
 	DisplayServer.clipboard_set(body_edit.text)
 	mostrar_info("Cuerpos.ini copiado al portapapeles")
+
+func _on_btn_exportar_ind() -> void:
+	limpiar_error()
+	if not dialog_guardar_ind:
+		return
+	dialog_guardar_ind.current_file = "Graficos.ind"
+	dialog_guardar_ind.popup_centered()
+
+func _on_guardar_ind_file_selected(path: String) -> void:
+	exportar_ind_solicitado.emit(path)
 
 func get_grh_text() -> String:
 	return grh_edit.text

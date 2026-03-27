@@ -14,7 +14,9 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 - 🖼️ Previsualización animada de las 4 direcciones (Abajo, Arriba, Izquierda, Derecha)
 - 🖱️ Edición de offset por frame con clic y/o teclas de flecha
 - 📝 Generación de código fuente (texto) compatible con `Graficos.ini` y `Cuerpos.ini` de AO
+- 📦 Exportación binaria `Graficos.ind` (formato AO), con opción **Integer/Long** para IDs de Grh
 - 💾 Descarga de imagen procesada en PNG o BMP
+- 🗒️ Pestaña de **Notas** para recordatorios del sprite
 
 ## Requisitos
 
@@ -25,12 +27,21 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 1. Abrir el proyecto en Godot: `File → Open Project → AOSPRITES-GODOT/`
 2. Presionar **F5** para ejecutar
 3. Cargar una imagen PNG del sprite sheet (debe ser compatible con el formato AO)
-4. Navegar por solapas:
-5. Ajustar parámetros en la solapa 2
-6. En la solapa 3, hacer clic en un frame estático y usar los botones o flechas del teclado para ajustar el offset
-7. Copiar el código generado en la solapa 4 a los archivos `.ini` del juego
+4. En la solapa **2. Ajustes + Previsualización**, ajusta:
+5. `NumGrh`, tamaño de frame, velocidad, zoom, offsets de cabeza
+6. (Opcional) Activar **Usar Grh Long (4 bytes para .ind)** si tu cliente AO usa IDs de Grh en `Long`
+7. En la solapa de previsualización, hacer clic en un frame estático y usar los botones o flechas del teclado para ajustar el offset
+8. En la solapa **4. Código Generado**, aplicar la indexación para validar el preview y exportar/copiar los archivos
+9. (Opcional) En la solapa **5. Notas**, escribir recordatorios del sprite
 
 En la solapa **4. Código Generado** puedes pegar/editar tu indexación en `Graficos.ini (Editable)` y presionar **Aplicar indexación al preview** para verificar coordenadas (cuerpo + cabeza) y animación. También puedes usar los botones para guardar directamente `Graficos.ini` y `Cuerpos.ini`.
+
+Exportación binaria:
+
+- Botón **Exportar .ind (Binario)**: genera `Graficos.ind` compatible con AO.
+- El formato de IDs de Grh depende del cliente:
+  - **Desactivado**: `Integer` (2 bytes).
+  - **Activado**: `Long` (4 bytes).
 
 Atajos y acciones rápidas:
 
@@ -39,6 +50,8 @@ Atajos y acciones rápidas:
 - Botones: **Reset/Limpiar**, **Copiar Graficos.ini**, **Copiar Cuerpos.ini**.
 
 Menú **Ayuda → Acerca de...** incluye una breve explicación de la herramienta y créditos al autor del proyecto web original.
+
+Menú **Ayuda → Instrucciones...** abre una ventana con guía rápida de uso.
 
 ## Logs
 
@@ -80,20 +93,26 @@ AOSPRITES-GODOT/
 │   └── head.png
 ├── scenes/
 │   ├── Main.tscn
+│   ├── AboutWindow.tscn
+│   ├── HelpWindow.tscn
 │   ├── PanelCargar.tscn
 │   ├── PanelAjustes.tscn
 │   ├── PanelPreview.tscn
-│   └── PanelCodigo.tscn
+│   ├── PanelCodigo.tscn
+│   └── PanelNotas.tscn
 └── scripts/
     ├── SpriteData.gd        ← Autoload: estado global
     ├── GrhParser.gd         ← Parser/generador de INI
+    ├── BinaryEncoder.gd     ← Exportación binaria .ind (AO)
     ├── ImageProcessor.gd    ← Procesado de imagen
     ├── CanvasRenderer.gd    ← Rendering pixel art
     ├── MainUI.gd            ← Orquestador principal
     ├── PanelCargar.gd
     ├── PanelAjustes.gd
     ├── PanelPreview.gd
-    └── PanelCodigo.gd
+    ├── PanelCodigo.gd
+    ├── PanelNotas.gd
+    └── HelpWindow.gd
 ```
 
 ## Fixes Recientes (Marzo 2026)
