@@ -8,11 +8,18 @@ extends PanelContainer
 @onready var body_edit: TextEdit      = $Margin/VBox/HBox/VBoxBody/BodyEdit
 @onready var btn_guardar_grh: Button  = $Margin/VBox/HBox/VBoxGrh/BtnGuardarGrh
 @onready var btn_aplicar_grh: Button  = $Margin/VBox/HBox/VBoxGrh/BtnAplicarGrh
+@onready var btn_reset: Button        = $Margin/VBox/HBox/VBoxGrh/BtnReset
+@onready var btn_copiar_grh: Button   = $Margin/VBox/HBox/VBoxGrh/BtnCopiarGrh
 @onready var btn_guardar_body: Button = $Margin/VBox/HBox/VBoxBody/BtnGuardarBody
+@onready var btn_copiar_body: Button  = $Margin/VBox/HBox/VBoxBody/BtnCopiarBody
 @onready var dialog_guardar_grh: FileDialog  = $DialogGuardarGrh
 @onready var dialog_guardar_body: FileDialog = $DialogGuardarBody
 
 signal grh_text_cambiado
+signal reset_solicitado
+
+var _ultima_ruta_grh: String = ""
+var _ultima_ruta_body: String = ""
 
 func _ready() -> void:
 	grh_edit.text_changed.connect(_on_grh_editado)
@@ -21,8 +28,14 @@ func _ready() -> void:
 		btn_guardar_grh.pressed.connect(_on_btn_guardar_grh)
 	if btn_aplicar_grh:
 		btn_aplicar_grh.pressed.connect(_on_btn_aplicar_grh)
+	if btn_reset:
+		btn_reset.pressed.connect(_on_btn_reset)
+	if btn_copiar_grh:
+		btn_copiar_grh.pressed.connect(_on_btn_copiar_grh)
 	if btn_guardar_body:
 		btn_guardar_body.pressed.connect(_on_btn_guardar_body)
+	if btn_copiar_body:
+		btn_copiar_body.pressed.connect(_on_btn_copiar_body)
 	if dialog_guardar_grh and not dialog_guardar_grh.file_selected.is_connected(_on_guardar_grh_file_selected):
 		dialog_guardar_grh.file_selected.connect(_on_guardar_grh_file_selected)
 	if dialog_guardar_body and not dialog_guardar_body.file_selected.is_connected(_on_guardar_body_file_selected):
@@ -34,6 +47,17 @@ func _on_grh_editado() -> void:
 
 func _on_btn_aplicar_grh() -> void:
 	grh_text_cambiado.emit()
+
+func _on_btn_reset() -> void:
+	reset_solicitado.emit()
+
+func _on_btn_copiar_grh() -> void:
+	DisplayServer.clipboard_set(grh_edit.text)
+	mostrar_info("Graficos.ini copiado al portapapeles")
+
+func _on_btn_copiar_body() -> void:
+	DisplayServer.clipboard_set(body_edit.text)
+	mostrar_info("Cuerpos.ini copiado al portapapeles")
 
 func get_grh_text() -> String:
 	return grh_edit.text
@@ -61,10 +85,20 @@ func _on_btn_guardar_body() -> void:
 	dialog_guardar_body.popup_centered()
 
 func _on_guardar_grh_file_selected(path: String) -> void:
+	_ultima_ruta_grh = path
 	_guardar_texto_en_archivo(path, grh_edit.text)
 
 func _on_guardar_body_file_selected(path: String) -> void:
+	_ultima_ruta_body = path
 	_guardar_texto_en_archivo(path, body_edit.text)
+
+func guardar_grh_rapido_o_dialogo() -> void:
+	limpiar_error()
+	if _ultima_ruta_grh.strip_edges() != "":
+		_guardar_texto_en_archivo(_ultima_ruta_grh, grh_edit.text)
+		mostrar_info("Graficos.ini guardado")
+		return
+	_on_btn_guardar_grh()
 
 func _guardar_texto_en_archivo(path: String, texto: String) -> void:
 	if path.strip_edges() == "":
@@ -80,10 +114,22 @@ func _guardar_texto_en_archivo(path: String, texto: String) -> void:
 func mostrar_error(msg: String) -> void:
 	grh_error.text = msg
 	grh_edit.add_theme_color_override("font_color", Color(1, 0.26, 0.21))
+	grh_error.add_theme_color_override("font_color", Color(0.957, 0.263, 0.212, 1))
+
+func mostrar_ok(msg: String) -> void:
+	grh_error.text = msg
+	grh_edit.remove_theme_color_override("font_color")
+	grh_error.add_theme_color_override("font_color", Color(0.506, 0.784, 0.518, 1))
+
+func mostrar_info(msg: String) -> void:
+	grh_error.text = msg
+	grh_edit.remove_theme_color_override("font_color")
+	grh_error.add_theme_color_override("font_color", Color(0.667, 0.667, 0.667, 1))
 
 func limpiar_error() -> void:
 	grh_error.text = ""
 	grh_edit.remove_theme_color_override("font_color")
+	grh_error.remove_theme_color_override("font_color")
 
 ## Retorna true si algún TextEdit tiene el foco (para ignorar flechas del teclado)
 func tiene_foco_activo() -> bool:

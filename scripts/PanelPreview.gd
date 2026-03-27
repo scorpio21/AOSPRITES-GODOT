@@ -464,8 +464,8 @@ func _posicionar_contador_sobre_sprite(rect: TextureRect, lbl: Label) -> void:
 		return
 	if not rect.texture:
 		return
-	var wrap := rect.get_parent() as Control
-	if not wrap:
+	var contenedor := rect.get_parent() as Control
+	if not contenedor:
 		return
 
 	var tex_w := float(rect.texture.get_width())
@@ -473,8 +473,8 @@ func _posicionar_contador_sobre_sprite(rect: TextureRect, lbl: Label) -> void:
 	if tex_w <= 0.0 or tex_h <= 0.0:
 		return
 
-	var w := float(wrap.size.x)
-	var h := float(wrap.size.y)
+	var w := float(contenedor.size.x)
+	var h := float(contenedor.size.y)
 	if w <= 0.0 or h <= 0.0:
 		return
 

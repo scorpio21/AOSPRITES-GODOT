@@ -441,6 +441,8 @@ func crear_panel_code() -> PanelContainer:
 	# Instrucciones
 	var instructions = Label.new()
 	instructions.text = "Edita los Grh para ajustar coordenadas (X, Y, Ancho, Alto). El formato es: GrhX=1-NumArchivo-X-Y-Ancho-Alto. Las animaciones son: GrhX=NumFrames-Frame1-Frame2...-Velocidad."
+	instructions.theme_override_font_sizes["font_size"] = 14
+	instructions.theme_override_colors["font_color"] = Color(0.14902, 0, 0.988235, 1)
 	instructions.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(instructions)
 	

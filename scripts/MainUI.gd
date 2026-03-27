@@ -20,9 +20,12 @@ extends Control
 var data
 var _logger: Node = null
 const _MENU_ACERCA_ID: int = 1001
+const _MENU_INSTRUCCIONES_ID: int = 1002
 const _ABOUT_WINDOW_SCENE_PATH: String = "res://scenes/AboutWindow.tscn"
+const _HELP_WINDOW_SCENE_PATH: String = "res://scenes/HelpWindow.tscn"
 
 var _about_window: Window = null
+var _help_window: Window = null
 
 func _ready() -> void:
 	# Failsafe: Imprimir a consola nativa primero
@@ -72,6 +75,8 @@ func _ready() -> void:
 	if panel_codigo:
 		if panel_codigo.has_signal("grh_text_cambiado"):
 			panel_codigo.grh_text_cambiado.connect(func(): on_config_cambiada(false))
+		if panel_codigo.has_signal("reset_solicitado"):
+			panel_codigo.reset_solicitado.connect(_on_reset_solicitado)
 	
 	if timer_anim:
 		timer_anim.timeout.connect(_on_timer_tick)
@@ -121,20 +126,32 @@ func _actualizar_estado_statusbar() -> void:
 
 	var partes: Array[String] = []
 
-	var nombre := str(data.get("working_filename", "")).strip_edges()
+	var nombre := ""
+	var nombre_v: Variant = data.get("working_filename")
+	if nombre_v != null:
+		nombre = str(nombre_v).strip_edges()
 	if nombre != "":
 		partes.append("Img: " + nombre)
 	else:
 		partes.append("Sin imagen")
 
-	var img: Image = data.get("working_image", null)
+	var img: Image = null
+	var img_v: Variant = data.get("working_image")
+	if img_v != null and img_v is Image:
+		img = img_v
 	if img:
 		partes.append("%dx%d" % [img.get_width(), img.get_height()])
 
-	var zoom := data.config.get("zoom", 0)
+	var zoom: float = 0.0
+	var cfg_v: Variant = data.get("config")
+	if cfg_v != null and typeof(cfg_v) == TYPE_DICTIONARY:
+		zoom = float((cfg_v as Dictionary).get("zoom", 0.0))
 	partes.append("Zoom: " + str(zoom))
 
-	var sel: int = int(data.get("selected_grh_id", -1))
+	var sel: int = -1
+	var sel_v: Variant = data.get("selected_grh_id")
+	if sel_v != null:
+		sel = int(sel_v)
 	if sel >= 0:
 		partes.append("Sel: Grh" + str(sel))
 	else:
@@ -154,14 +171,17 @@ func _inicializar_menu_ayuda() -> void:
 	if not popup:
 		return
 	popup.clear()
+	popup.add_item("Instrucciones...", _MENU_INSTRUCCIONES_ID)
 	popup.add_item("Acerca de...", _MENU_ACERCA_ID)
 	if not popup.id_pressed.is_connected(_on_ayuda_menu_id_pressed):
 		popup.id_pressed.connect(_on_ayuda_menu_id_pressed)
 
 func _on_ayuda_menu_id_pressed(id: int) -> void:
-	if id != _MENU_ACERCA_ID:
-		return
-	_mostrar_acerca_de()
+	match id:
+		_MENU_INSTRUCCIONES_ID:
+			_mostrar_instrucciones()
+		_MENU_ACERCA_ID:
+			_mostrar_acerca_de()
 
 func _mostrar_acerca_de() -> void:
 	if is_instance_valid(_about_window):
@@ -209,8 +229,46 @@ func _on_about_rt_meta_clicked(meta: Variant) -> void:
 		return
 	OS.shell_open(url)
 
+func _mostrar_instrucciones() -> void:
+	if is_instance_valid(_help_window):
+		_help_window.grab_focus()
+		_help_window.popup_centered()
+		return
+	if not ResourceLoader.exists(_HELP_WINDOW_SCENE_PATH):
+		return
+	var scene: PackedScene = ResourceLoader.load(_HELP_WINDOW_SCENE_PATH)
+	if not scene:
+		return
+	var instancia := scene.instantiate()
+	if not (instancia is Window):
+		instancia.queue_free()
+		return
+	_help_window = instancia
+	_help_window.exclusive = false
+	_help_window.transient = true
+	_help_window.close_requested.connect(func():
+		if is_instance_valid(_help_window):
+			_help_window.queue_free()
+		_help_window = null
+	)
+	get_tree().root.add_child(_help_window)
+	_help_window.popup_centered()
+
 # ── Teclado: flechas para offset ─────────────────────────
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed:
+		var k := event as InputEventKey
+		if k.ctrl_pressed:
+			if k.keycode == KEY_ENTER or k.keycode == KEY_KP_ENTER:
+				on_config_cambiada(false)
+				get_viewport().set_input_as_handled()
+				return
+			if k.keycode == KEY_S:
+				if panel_codigo and panel_codigo.has_method("guardar_grh_rapido_o_dialogo"):
+					panel_codigo.call("guardar_grh_rapido_o_dialogo")
+					get_viewport().set_input_as_handled()
+					return
+
 	if data.selected_grh_id < 0:
 		return
 	if not event is InputEventKey or not event.pressed:
@@ -251,6 +309,29 @@ func on_config_cambiada(regenerar: bool) -> void:
 		data.grh_data = resultado["data"]
 		data.anim_grhs = GrhParser.detectar_anim_grhs(data.grh_data, data.config)
 
+		var count_estaticos: int = 0
+		var count_anims: int = 0
+		for k in data.grh_data.keys():
+			var entry: Dictionary = data.grh_data.get(k, {})
+			var t: int = int(entry.get("type", 0))
+			if t == 1:
+				count_estaticos += 1
+			elif t == 2:
+				count_anims += 1
+
+		var faltantes: Array[String] = []
+		for dir in data.dir_order:
+			var anim_id: int = int(data.anim_grhs.get(dir, 0))
+			var anim_entry: Dictionary = data.grh_data.get(anim_id, {})
+			if anim_id <= 0 or int(anim_entry.get("type", 0)) != 2:
+				faltantes.append(str(dir))
+
+		var msg_ok := "Aplicado OK: %d Grh estáticos, %d animaciones" % [count_estaticos, count_anims]
+		if faltantes.size() > 0:
+			panel_codigo.mostrar_info(msg_ok + " | Faltan animaciones: " + ", ".join(faltantes))
+		else:
+			panel_codigo.mostrar_ok(msg_ok)
+
 		var min_grh_id := 0
 		for k in data.grh_data.keys():
 			var kid := int(k)
@@ -269,6 +350,19 @@ func on_config_cambiada(regenerar: bool) -> void:
 		panel_preview.actualizar_ui()
 	else:
 		panel_codigo.mostrar_error(resultado["error"])
+
+
+func _on_reset_solicitado() -> void:
+	if not data:
+		return
+	data.selected_grh_id = -1
+	for dir in data.dir_order:
+		data.anim_states[dir]["current_frame"] = 0
+		data.anim_states[dir]["playing"] = true
+	panel_preview.actualizar_ui()
+	panel_preview.redibujar_frames()
+	if panel_codigo and panel_codigo.has_method("mostrar_info"):
+		panel_codigo.call("mostrar_info", "Reset aplicado")
 
 # ── Imagen cargada desde PanelCargar ─────────────────────
 func on_imagen_cargada(img: Image, nombre: String) -> void:

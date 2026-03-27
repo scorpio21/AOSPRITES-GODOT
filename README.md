@@ -28,6 +28,12 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 
 En la solapa **4. Código Generado** puedes pegar/editar tu indexación en `Graficos.ini (Editable)` y presionar **Aplicar indexación al preview** para verificar coordenadas (cuerpo + cabeza) y animación. También puedes usar los botones para guardar directamente `Graficos.ini` y `Cuerpos.ini`.
 
+Atajos y acciones rápidas:
+
+- `Ctrl+Enter`: aplicar indexación al preview.
+- `Ctrl+S`: guardar `Graficos.ini` (si ya elegiste una ruta, guarda directo; si no, abre el diálogo).
+- Botones: **Reset/Limpiar**, **Copiar Graficos.ini**, **Copiar Cuerpos.ini**.
+
 Menú **Ayuda → Acerca de...** incluye una breve explicación de la herramienta y créditos al autor del proyecto web original.
 
 ## Logs
