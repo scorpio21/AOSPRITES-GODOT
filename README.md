@@ -14,8 +14,7 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 - 🖼️ Previsualización animada de las 4 direcciones (Abajo, Arriba, Izquierda, Derecha)
 - 🖱️ Edición de offset por frame con clic y/o teclas de flecha
 - 📝 Generación de código fuente (texto) compatible con `Graficos.ini` y `Cuerpos.ini` de AO
-- 📦 Exportación binaria `Graficos.ind` (formato AO), con opción **Integer/Long** para IDs de Grh
-- 💾 Descarga de imagen procesada en PNG o BMP
+-  Descarga de imagen procesada en PNG o BMP
 - 🗒️ Pestaña de **Notas** para recordatorios del sprite
 
 ## Requisitos
@@ -29,19 +28,15 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 3. Cargar una imagen PNG del sprite sheet (debe ser compatible con el formato AO)
 4. En la solapa **2. Ajustes + Previsualización**, ajusta:
 5. `NumGrh`, tamaño de frame, velocidad, zoom, offsets de cabeza
-6. (Opcional) Activar **Usar Grh Long (4 bytes para .ind)** si tu cliente AO usa IDs de Grh en `Long`
-7. En la solapa de previsualización, hacer clic en un frame estático y usar los botones o flechas del teclado para ajustar el offset
-8. En la solapa **4. Código Generado**, aplicar la indexación para validar el preview y exportar/copiar los archivos
-9. (Opcional) En la solapa **5. Notas**, escribir recordatorios del sprite
+6. En la solapa de previsualización, hacer clic en un frame estático y usar los botones o flechas del teclado para ajustar el offset
+7. En la solapa **4. Código Generado**, aplicar la indexación para validar el preview y exportar/copiar los archivos
+8. (Opcional) En la solapa **5. Notas**, escribir recordatorios del sprite
 
 En la solapa **4. Código Generado** puedes pegar/editar tu indexación en `Graficos.ini (Editable)` y presionar **Aplicar indexación al preview** para verificar coordenadas (cuerpo + cabeza) y animación. También puedes usar los botones para guardar directamente `Graficos.ini` y `Cuerpos.ini`.
 
 Exportación binaria:
 
-- Botón **Exportar .ind (Binario)**: genera `Graficos.ind` compatible con AO.
-- El formato de IDs de Grh depende del cliente:
-  - **Desactivado**: `Integer` (2 bytes).
-  - **Activado**: `Long` (4 bytes).
+- La exportación `Graficos.ind` está **desactivada temporalmente**.
 
 Atajos y acciones rápidas:
 

@@ -634,9 +634,9 @@ func _on_tabbar_gui_input(event: InputEvent) -> void:
 
 # ── Exportar .ind (binario) ────────────────────────────────
 func _on_exportar_ind_solicitado(ruta: String) -> void:
-	if not data or not data.grh_data:
-		panel_codigo.mostrar_error("No hay datos de Grh para exportar")
-		return
+	if panel_codigo and panel_codigo.has_method("mostrar_info"):
+		panel_codigo.call("mostrar_info", "Exportación .ind binaria desactivada temporalmente")
+	return
 	
 	# Crear encoder y configurar según los ajustes
 	var encoder := BinaryEncoder.new()

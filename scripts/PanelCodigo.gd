@@ -40,7 +40,8 @@ func _ready() -> void:
 	if btn_copiar_body:
 		btn_copiar_body.pressed.connect(_on_btn_copiar_body)
 	if btn_exportar_ind:
-		btn_exportar_ind.pressed.connect(_on_btn_exportar_ind)
+		btn_exportar_ind.disabled = true
+		btn_exportar_ind.visible = false
 	if dialog_guardar_grh and not dialog_guardar_grh.file_selected.is_connected(_on_guardar_grh_file_selected):
 		dialog_guardar_grh.file_selected.connect(_on_guardar_grh_file_selected)
 	if dialog_guardar_body and not dialog_guardar_body.file_selected.is_connected(_on_guardar_body_file_selected):
@@ -67,14 +68,10 @@ func _on_btn_copiar_body() -> void:
 	mostrar_info("Cuerpos.ini copiado al portapapeles")
 
 func _on_btn_exportar_ind() -> void:
-	limpiar_error()
-	if not dialog_guardar_ind:
-		return
-	dialog_guardar_ind.current_file = "Graficos.ind"
-	dialog_guardar_ind.popup_centered()
+	mostrar_info("Exportación .ind binaria desactivada temporalmente")
 
 func _on_guardar_ind_file_selected(path: String) -> void:
-	exportar_ind_solicitado.emit(path)
+	mostrar_info("Exportación .ind binaria desactivada temporalmente")
 
 func get_grh_text() -> String:
 	return grh_edit.text
