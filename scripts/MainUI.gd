@@ -43,7 +43,7 @@ func _ready() -> void:
 
 	_logger = get_node_or_null("/root/AOLogger")
 	if not _logger:
-		printerr("ERROR: AOLogger Autoload no encontrado!")
+		print("!!! ERROR: AOLogger Autoload no encontrado!")
 		if visual_debug: visual_debug.text = "ERROR: SIN LOGGER"
 		# No retornar, intentar seguir
 	else:
@@ -52,8 +52,8 @@ func _ready() -> void:
 	data = get_node_or_null("/root/SpriteData")
 	
 	# Diagnóstico de nodos
-	if not panel_cargar: printerr("  ERROR: panel_cargar es NULL")
-	if not panel_ajustes: printerr("  ERROR: panel_ajustes es NULL")
+	if not panel_cargar: print("  ERROR: panel_cargar es NULL")
+	if not panel_ajustes: print("  ERROR: panel_ajustes es NULL")
 	
 	# Conectar señales con safeties
 	if panel_cargar:
