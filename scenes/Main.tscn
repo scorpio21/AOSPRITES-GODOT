@@ -139,16 +139,15 @@ theme_override_constants/separation = 10
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LblVersion" type="Label" parent="MainVBox/StatusBar/HBox"]
-layout_mode = 2
-text = "v1.0 PRO"
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
-
 [node name="LblReloj" type="Label" parent="MainVBox/StatusBar/HBox"]
 layout_mode = 2
 text = "🕒 00:00:00"
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 
+[node name="LblVersion" type="Label" parent="MainVBox/StatusBar/HBox"]
+layout_mode = 2
+text = "v1.0 PRO"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 
