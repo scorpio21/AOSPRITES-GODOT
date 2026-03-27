@@ -2,6 +2,12 @@
 .godot/
 *.import
 
+# Logs del proyecto
+log/
+
+# UIDs de Godot
+*.uid
+
 # Export presets
 export_presets.cfg
 

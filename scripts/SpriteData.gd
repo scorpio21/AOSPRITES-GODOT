@@ -15,8 +15,8 @@ var config: Dictionary = {
 	"w": 25,
 	"h": 45,
 	"speed": 100,
-	"zoom": 2.0,
-	"show_grid": true,
+	"zoom": 3.0,
+	"show_grid": false,
 	"hox": 0,
 	"hoy": -2,
 	"last_grh": 30000
@@ -64,13 +64,25 @@ var working_image: Image = null   # Imagen re-escalada
 var working_filename: String = ""
 
 func _ready() -> void:
+	if AOLogger:
+		AOLogger.log_msg("SpriteData: _ready()")
 	_cargar_head()
 
 ## Carga la imagen head.png desde assets/
 func _cargar_head() -> void:
 	var path := "res://assets/head.png"
 	if ResourceLoader.exists(path):
+		if AOLogger:
+			AOLogger.log_msg("SpriteData: head.png encontrado: " + path)
 		var res: Resource = ResourceLoader.load(path)
 		if res is Texture2D:
 			head_texture = res
 			head_image = res.get_image()
+			if AOLogger:
+				AOLogger.log_msg("SpriteData: head cargada OK (tex=" + str(head_texture != null) + ", img=" + str(head_image != null) + ")")
+		else:
+			if AOLogger:
+				AOLogger.log_msg("SpriteData: WARN head.png cargó pero no es Texture2D: " + str(res))
+	else:
+		if AOLogger:
+			AOLogger.log_msg("SpriteData: ERROR head.png NO existe: " + path)

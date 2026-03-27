@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/PanelAjustes.gd" id="1_ajustes"]
+[ext_resource type="Script" path="res://scripts/PanelAjustes.gd" id="1"]
 
-[node name="PanelAjustes" type="PanelContainer" script=ExtResource("1_ajustes")]
+[node name="PanelAjustes" type="PanelContainer" script=ExtResource("1")]
 size_flags_horizontal = 3
 
 [node name="Margin" type="MarginContainer" parent="."]
@@ -24,77 +24,100 @@ theme_override_colors/font_color = Color(0.878, 0.878, 0.878, 1)
 [node name="Separator" type="HSeparator" parent="Margin/VBox"]
 layout_mode = 2
 
-[node name="GridTop" type="GridContainer" parent="Margin/VBox"]
+[node name="GridTop" type="VBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
-columns = 6
-theme_override_constants/h_separation = 15
-theme_override_constants/v_separation = 10
+theme_override_constants/separation = 12
 
-[node name="LabelLastGrh" type="Label" parent="Margin/VBox/GridTop"]
+[node name="NumGrh" type="VBoxContainer" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LabelLastGrh" type="Label" parent="Margin/VBox/GridTop/NumGrh"]
 layout_mode = 2
 text = "NumGrh (empezará en +1):"
 
-[node name="SpinLastGrh" type="SpinBox" parent="Margin/VBox/GridTop"]
+[node name="SpinLastGrh" type="SpinBox" parent="Margin/VBox/GridTop/NumGrh"]
 layout_mode = 2
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(120, 0)
 min_value = 1.0
 max_value = 9999999.0
 value = 30000.0
 allow_lesser = false
 
-[node name="LabelWidth" type="Label" parent="Margin/VBox/GridTop"]
+[node name="FilaConfig" type="HBoxContainer" parent="Margin/VBox/GridTop"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="ColAncho" type="VBoxContainer" parent="Margin/VBox/GridTop/FilaConfig"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="LabelWidth" type="Label" parent="Margin/VBox/GridTop/FilaConfig/ColAncho"]
 layout_mode = 2
 text = "Ancho (Frame Width):"
 
-[node name="SpinWidth" type="SpinBox" parent="Margin/VBox/GridTop"]
+[node name="SpinWidth" type="SpinBox" parent="Margin/VBox/GridTop/FilaConfig/ColAncho"]
 layout_mode = 2
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(120, 0)
 min_value = 1.0
 max_value = 512.0
 value = 25.0
 
-[node name="LabelHeight" type="Label" parent="Margin/VBox/GridTop"]
+[node name="ColAlto" type="VBoxContainer" parent="Margin/VBox/GridTop/FilaConfig"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="LabelHeight" type="Label" parent="Margin/VBox/GridTop/FilaConfig/ColAlto"]
 layout_mode = 2
 text = "Alto (Frame Height):"
 
-[node name="SpinHeight" type="SpinBox" parent="Margin/VBox/GridTop"]
+[node name="SpinHeight" type="SpinBox" parent="Margin/VBox/GridTop/FilaConfig/ColAlto"]
 layout_mode = 2
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(120, 0)
 min_value = 1.0
 max_value = 512.0
 value = 45.0
 
-[node name="LabelSpeed" type="Label" parent="Margin/VBox/GridTop"]
+[node name="ColVel" type="VBoxContainer" parent="Margin/VBox/GridTop/FilaConfig"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="LabelSpeed" type="Label" parent="Margin/VBox/GridTop/FilaConfig/ColVel"]
 layout_mode = 2
 text = "Velocidad (ms):"
 
-[node name="SpinSpeed" type="SpinBox" parent="Margin/VBox/GridTop"]
+[node name="SpinSpeed" type="SpinBox" parent="Margin/VBox/GridTop/FilaConfig/ColVel"]
 layout_mode = 2
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(120, 0)
 min_value = 10.0
 max_value = 2000.0
 value = 100.0
 
-[node name="LabelZoom" type="Label" parent="Margin/VBox/GridTop"]
+[node name="ColZoom" type="VBoxContainer" parent="Margin/VBox/GridTop/FilaConfig"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="LabelZoom" type="Label" parent="Margin/VBox/GridTop/FilaConfig/ColZoom"]
 layout_mode = 2
 text = "Zoom Previsualización:"
 
-[node name="SpinZoom" type="SpinBox" parent="Margin/VBox/GridTop"]
+[node name="SpinZoom" type="SpinBox" parent="Margin/VBox/GridTop/FilaConfig/ColZoom"]
 layout_mode = 2
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(120, 0)
 min_value = 1.0
 max_value = 10.0
 step = 0.5
 value = 2.0
 
-[node name="CheckGrid" type="CheckBox" parent="Margin/VBox/GridTop"]
+[node name="CheckGrid" type="CheckBox" parent="Margin/VBox/GridTop/FilaConfig"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Mostrar Grilla (Zoom >= 3)"
 button_pressed = true
-
-[node name="Spacer" type="Control" parent="Margin/VBox/GridTop"]
-layout_mode = 2
 
 [node name="SepOffsets" type="HSeparator" parent="Margin/VBox"]
 layout_mode = 2
@@ -106,29 +129,40 @@ theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.667, 0.667, 0.667, 1)
 autowrap_mode = 3
 
-[node name="GridOffsets" type="GridContainer" parent="Margin/VBox"]
+[node name="GridOffsets" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
-columns = 4
-theme_override_constants/h_separation = 15
+theme_override_constants/separation = 25
 
-[node name="LabelHox" type="Label" parent="Margin/VBox/GridOffsets"]
+[node name="ColHox" type="VBoxContainer" parent="Margin/VBox/GridOffsets"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="LabelHox" type="Label" parent="Margin/VBox/GridOffsets/ColHox"]
 layout_mode = 2
 text = "HeadOffsetX:"
 
-[node name="SpinHox" type="SpinBox" parent="Margin/VBox/GridOffsets"]
+[node name="SpinHox" type="SpinBox" parent="Margin/VBox/GridOffsets/ColHox"]
 layout_mode = 2
-custom_minimum_size = Vector2(80, 0)
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 0)
 min_value = -200.0
 max_value = 200.0
 value = 0.0
 
-[node name="LabelHoy" type="Label" parent="Margin/VBox/GridOffsets"]
+[node name="ColHoy" type="VBoxContainer" parent="Margin/VBox/GridOffsets"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="LabelHoy" type="Label" parent="Margin/VBox/GridOffsets/ColHoy"]
 layout_mode = 2
 text = "HeadOffsetY: (aprox 6 para enanos)"
 
-[node name="SpinHoy" type="SpinBox" parent="Margin/VBox/GridOffsets"]
+[node name="SpinHoy" type="SpinBox" parent="Margin/VBox/GridOffsets/ColHoy"]
 layout_mode = 2
-custom_minimum_size = Vector2(80, 0)
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 0)
 min_value = -200.0
 max_value = 200.0
 value = -2.0

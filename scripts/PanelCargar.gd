@@ -22,9 +22,14 @@ signal opciones_cambiadas
 
 var _imagen_procesada: Image = null
 var _nombre_base: String = ""
+var _logger: Node = null
 
 func _ready() -> void:
-	printerr("!!! PanelCargar: _ready() START !!!")
+	print("!!! PanelCargar: _ready() START !!!")
+	_logger = get_node_or_null("/root/AOLogger")
+	if _logger:
+		_logger.call("log_msg", "PanelCargar: _ready() START")
+	await get_tree().process_frame
 	
 	# Buscar debug log visual
 	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
@@ -32,13 +37,25 @@ func _ready() -> void:
 
 	# Forzar ventanas nativas
 	get_viewport().gui_embed_subwindows = false
+	if file_dialog_open:
+		file_dialog_open.filters = PackedStringArray(["*.png, *.bmp, *.jpg, *.jpeg ; Imágenes"])
+	if file_dialog_save:
+		file_dialog_save.filters = PackedStringArray(["*.png ; PNG", "*.bmp ; BMP", "*.jpg ; JPG", "*.jpeg ; JPEG"])
 	
 	# Conectar drag & drop de ventana
-	get_window().files_dropped.connect(_on_archivos_soltados)
+	var w := get_window()
+	if w and not w.files_dropped.is_connected(_on_archivos_soltados):
+		w.files_dropped.connect(_on_archivos_soltados)
+		if _logger:
+			_logger.call("log_msg", "PanelCargar: conectado files_dropped")
 
 	# Conectar señales de UI
 	if drop_zone: drop_zone.pressed.connect(_abrir_selector)
+	if drop_zone and not drop_zone.gui_input.is_connected(_on_drop_zone_input):
+		drop_zone.gui_input.connect(_on_drop_zone_input)
 	if btn_descargar: btn_descargar.pressed.connect(_solicitar_guardar)
+	if file_dialog_open: file_dialog_open.file_selected.connect(_on_archivo_seleccionado)
+	if file_dialog_save: file_dialog_save.file_selected.connect(_on_guardar_seleccionado)
 	
 	if check_p2: check_p2.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
 	if check_bg: check_bg.toggled.connect(func(_v: bool): opciones_cambiadas.emit())
@@ -48,31 +65,51 @@ func _ready() -> void:
 	container_resized.hide()
 	
 	if visual_debug: visual_debug.text = "V1.1: LISTO PARA ACCION"
-	if AOLogger: AOLogger.log_msg("PanelCargar: _ready() completo")
-	printerr("!!! PanelCargar: _ready() END !!!")
+	if _logger:
+		_logger.call("log_msg", "PanelCargar: _ready() completo")
+	print("!!! PanelCargar: _ready() END !!!")
+	if _logger:
+		_logger.call("log_msg", "PanelCargar: _ready() END")
+
+func _on_drop_zone_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		if _logger:
+			_logger.call("log_msg", "PanelCargar: click en DropZone")
+		_abrir_selector()
 
 # ── Abrir FileDialog ──────────────────────────────────────
 func _abrir_selector() -> void:
-	AOLogger.log_msg("_abrir_selector() llamado")
+	if _logger:
+		_logger.call("log_msg", "_abrir_selector() llamado")
+	if not file_dialog_open:
+		if _logger:
+			_logger.call("log_msg", "PanelCargar: ERROR file_dialog_open es NULL")
+		return
 	file_dialog_open.popup_centered(Vector2i(900, 600))
 
 # ── Drag & drop desde el OS (Windows Explorer) ────────────
 func _on_archivos_soltados(archivos: PackedStringArray) -> void:
-	AOLogger.log_msg("_on_archivos_soltados() recibido: " + str(archivos))
+	if _logger:
+		_logger.call("log_msg", "_on_archivos_soltados() recibido: " + str(archivos))
 	var visual_debug = get_tree().root.find_child("DebugLog", true, false)
 	if visual_debug: visual_debug.text = "Archivos detectados: " + str(archivos.size())
 
 	if archivos.size() == 0: return
 	var ext := archivos[0].get_extension().to_lower()
-	if ext == "png" or ext == "jpg" or ext == "jpeg":
+	if ext == "png" or ext == "bmp":
 		_on_archivo_seleccionado(archivos[0])
+	else:
+		if _logger:
+			_logger.call("log_msg", "PanelCargar: archivo ignorado por extensión: " + ext)
 
 # ── Archivo seleccionado (FileDialog o drag&drop) ─────────
 func _on_archivo_seleccionado(ruta: String) -> void:
-	AOLogger.log_msg("Cargando: '" + ruta + "'")
+	if _logger:
+		_logger.call("log_msg", "Cargando: '" + ruta + "'")
 	var img := ImageProcessor.cargar_imagen(ruta)
 	if not img:
-		AOLogger.log_msg("ERROR: No se pudo cargar la imagen")
+		if _logger:
+			_logger.call("log_msg", "ERROR: No se pudo cargar la imagen")
 		drop_label.text = "Error al cargar: " + ruta.get_file()
 		return
 	
@@ -116,7 +153,8 @@ func _solicitar_guardar() -> void:
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
-		AOLogger.log_msg("PanelCargar: Click detectado en el PANEL (pos: " + str(event.position) + ")")
+		if _logger:
+			_logger.call("log_msg", "PanelCargar: Click detectado en el PANEL (pos: " + str(event.position) + ")")
 		var visual_debug = get_tree().root.find_child("DebugLog", true, false)
 		if visual_debug: visual_debug.text = "CLICK EN PANEL OK"
 

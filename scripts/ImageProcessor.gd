@@ -8,11 +8,16 @@ extends RefCounted
 # Carga una imagen desde el filesystem del usuario
 # --------------------------------------------------------
 static func cargar_imagen(ruta: String) -> Image:
-	var img := Image.new()
-	var err := img.load(ruta)
-	if err != OK:
-		push_error("No se pudo cargar la imagen: %s" % ruta)
+	var ruta_norm: String = ruta.replace("\\", "/")
+	if not FileAccess.file_exists(ruta_norm):
+		push_error("No existe el archivo: %s" % ruta_norm)
 		return null
+	var img := Image.new()
+	var err := img.load(ruta_norm)
+	if err != OK:
+		push_error("No se pudo cargar la imagen: %s (err=%d %s)" % [ruta_norm, int(err), error_string(err)])
+		return null
+	img.convert(Image.FORMAT_RGBA8)
 	return img
 
 # --------------------------------------------------------
@@ -28,6 +33,7 @@ static func reescalar(img: Image, usar_potencia_de_dos: bool) -> Dictionary:
 		result_img = Image.create(target_size, target_size, false, Image.FORMAT_RGBA8)
 		# Dibujar a 192x192 usando interpolación nearest-neighbor
 		var temp := img.duplicate()
+		temp.convert(Image.FORMAT_RGBA8)
 		temp.resize(192, 192, Image.INTERPOLATE_NEAREST)
 		result_img.blit_rect(temp, Rect2i(0, 0, 192, 192), Vector2i(0, 0))
 		if target_size == 256:

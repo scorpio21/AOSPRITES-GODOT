@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/PanelCargar.gd" id="1_cargar"]
+[ext_resource type="Script" path="res://scripts/PanelCargar.gd" id="1"]
 
-[node name="PanelCargar" type="PanelContainer" script=ExtResource("1_cargar")]
+[node name="PanelCargar" type="PanelContainer" script=ExtResource("1")]
 custom_minimum_size = Vector2(0, 200)
 size_flags_horizontal = 3
 
@@ -53,13 +53,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 expand_mode = 3
-stretch_mode = 6
+stretch_mode = 5
 texture_filter = 1
 visible = false
 
 [node name="ContainerResized" type="VBoxContainer" parent="Margin/VBox/HBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(200, 0)
+size_flags_horizontal = 3
 visible = false
 
 [node name="LabelResized" type="Label" parent="Margin/VBox/HBox/ContainerResized"]
@@ -73,7 +74,7 @@ theme_override_colors/font_color = Color(0.506, 0.784, 0.518, 1)
 layout_mode = 2
 custom_minimum_size = Vector2(192, 120)
 expand_mode = 3
-stretch_mode = 6
+stretch_mode = 5
 texture_filter = 1
 
 [node name="HBoxOpts" type="HBoxContainer" parent="Margin/VBox/HBox/ContainerResized"]
@@ -118,12 +119,12 @@ text = "Descargar"
 title = "Seleccionar imagen"
 size = Vector2i(800, 600)
 access = 2
-filters = PackedStringArray("*.png, *.jpg ; Imágenes")
+filters = PackedStringArray("*.png, *.bmp ; Imágenes")
 file_mode = 0
 
 [node name="FileDialogSave" type="FileDialog" parent="."]
 title = "Guardar imagen procesada"
 size = Vector2i(800, 600)
 access = 2
-filters = PackedStringArray("*.png ; PNG")
+filters = PackedStringArray("*.png ; PNG", "*.bmp ; BMP")
 file_mode = 4

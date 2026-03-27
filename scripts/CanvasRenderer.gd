@@ -60,18 +60,31 @@ static func _dibujar_tablero(img: Image, w: int, h: int) -> void:
 # Blit escalado con nearest-neighbor
 # --------------------------------------------------------
 static func _blit_scaled(src: Image, src_rect: Rect2i, dst: Image, dst_pos: Vector2i, zoom: float) -> void:
-	for sy in src_rect.size.y:
-		for sx in src_rect.size.x:
-			var color := src.get_pixel(src_rect.position.x + sx, src_rect.position.y + sy)
+	var src_w: int = src.get_width()
+	var src_h: int = src.get_height()
+	var ox: int = src_rect.position.x
+	var oy: int = src_rect.position.y
+	var x0: int = clamp(ox, 0, src_w)
+	var y0: int = clamp(oy, 0, src_h)
+	var x1: int = clamp(ox + src_rect.size.x, 0, src_w)
+	var y1: int = clamp(oy + src_rect.size.y, 0, src_h)
+	if x1 <= x0 or y1 <= y0:
+		return
+
+	for sy in range(y0, y1):
+		for sx in range(x0, x1):
+			var color := src.get_pixel(sx, sy)
 			if color.a == 0.0:
 				continue
-			var dx_start := dst_pos.x + int(sx * zoom)
-			var dy_start := dst_pos.y + int(sy * zoom)
+			# Importante: usar el origen original (ox/oy) para compensar el clamp.
+			# Si ox/oy son negativos, el recorte no debe "mover" el contenido en destino.
+			var dx_start := dst_pos.x + int((sx - ox) * zoom)
+			var dy_start := dst_pos.y + int((sy - oy) * zoom)
 			for zy in int(zoom):
 				for zx in int(zoom):
 					var px := dx_start + zx
 					var py := dy_start + zy
-					if px < dst.get_width() and py < dst.get_height():
+					if px >= 0 and py >= 0 and px < dst.get_width() and py < dst.get_height():
 						dst.set_pixel(px, py, color)
 
 # --------------------------------------------------------

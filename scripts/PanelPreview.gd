@@ -6,11 +6,13 @@ extends PanelContainer
 @onready var anim_container: VBoxContainer = $Margin/VBox/ScrollFrames/AnimContainer
 @onready var offset_controls: VBoxContainer = $OffsetControls
 @onready var btn_up: Button    = $OffsetControls/BtnUp
-@onready var btn_down: Button  = $OffsetControls/BtnDown
+@onready var btn_down: Button  = $OffsetControls/HBox/BtnDown
 @onready var btn_left: Button  = $OffsetControls/HBox/BtnLeft
 @onready var btn_right: Button = $OffsetControls/HBox/BtnRight
 
 var _main_ui: Node = null
+var _data: Node = null
+var _logger: Node = null
 
 # Nodos dinámicos por dirección
 var _anim_rects: Dictionary = {}     # dir → TextureRect (canvas animado)
@@ -21,16 +23,88 @@ var _btn_plays: Dictionary = {}      # dir → Button ⏸️
 func _ready() -> void:
 	await get_tree().process_frame
 	_main_ui = get_tree().get_root().get_node_or_null("Main")
-	offset_controls.hide()
-	offset_controls.set_meta("parent_original", get_parent())
-	btn_up.pressed.connect(func(): _main_ui.solicitar_modificar_offset(0, 1))
-	btn_down.pressed.connect(func(): _main_ui.solicitar_modificar_offset(0, -1))
-	btn_left.pressed.connect(func(): _main_ui.solicitar_modificar_offset(1, 0))
-	btn_right.pressed.connect(func(): _main_ui.solicitar_modificar_offset(-1, 0))
+	_data = get_node_or_null("/root/SpriteData")
+	_logger = get_node_or_null("/root/AOLogger")
+	if offset_controls:
+		offset_controls.hide()
+		offset_controls.set_meta("parent_original", get_parent())
+	if _main_ui and _main_ui.has_method("solicitar_modificar_offset"):
+		if btn_up:
+			btn_up.pressed.connect(func(): _main_ui.solicitar_modificar_offset(0, 1))
+		if btn_down:
+			btn_down.pressed.connect(func(): _main_ui.solicitar_modificar_offset(0, -1))
+		if btn_left:
+			btn_left.pressed.connect(func(): _main_ui.solicitar_modificar_offset(1, 0))
+		if btn_right:
+			btn_right.pressed.connect(func(): _main_ui.solicitar_modificar_offset(-1, 0))
 	_construir_filas()
+	_recolocar_offset_controls_si_hace_falta()
+
+
+func _recolocar_offset_controls_si_hace_falta() -> void:
+	if not offset_controls or not is_instance_valid(offset_controls):
+		return
+	var p: Node = offset_controls.get_parent()
+	if not p or not is_instance_valid(p):
+		return
+	# Evitar que se libere si estaba dentro de un item que se va a queue_free()
+	if p != self:
+		p.remove_child(offset_controls)
+		add_child(offset_controls)
+		offset_controls.hide()
+		if _logger:
+			_logger.call("log_msg", "PanelPreview: OffsetControls recolocado a PanelPreview para evitar freed instance")
+	# En este modo los controles se muestran dentro del item seleccionado; mantener este nodo oculto.
+	offset_controls.hide()
+
+
+func _crear_controles_offset_inline(_item: Control, _frame_id: int) -> Control:
+	var box := VBoxContainer.new()
+	box.name = "OffsetInline"
+	box.visible = false
+
+	var btn_up_local := Button.new()
+	btn_up_local.text = "Arriba"
+	btn_up_local.pressed.connect(func():
+		if _main_ui and _main_ui.has_method("solicitar_modificar_offset"):
+			_main_ui.solicitar_modificar_offset(0, 1)
+	)
+	box.add_child(btn_up_local)
+
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	var btn_left_local := Button.new()
+	btn_left_local.text = "Izquierda"
+	btn_left_local.pressed.connect(func():
+		if _main_ui and _main_ui.has_method("solicitar_modificar_offset"):
+			_main_ui.solicitar_modificar_offset(1, 0)
+	)
+	row.add_child(btn_left_local)
+
+	var btn_down_local := Button.new()
+	btn_down_local.text = "Abajo"
+	btn_down_local.pressed.connect(func():
+		if _main_ui and _main_ui.has_method("solicitar_modificar_offset"):
+			_main_ui.solicitar_modificar_offset(0, -1)
+	)
+	row.add_child(btn_down_local)
+
+	var btn_right_local := Button.new()
+	btn_right_local.text = "Derecha"
+	btn_right_local.pressed.connect(func():
+		if _main_ui and _main_ui.has_method("solicitar_modificar_offset"):
+			_main_ui.solicitar_modificar_offset(-1, 0)
+	)
+	row.add_child(btn_right_local)
+
+	box.add_child(row)
+	return box
 
 # ── Construir filas de dirección ──────────────────────────
 func _construir_filas() -> void:
+	if not _data:
+		return
 	for child in anim_container.get_children():
 		child.queue_free()
 	_anim_rects.clear()
@@ -38,35 +112,43 @@ func _construir_filas() -> void:
 	_frame_items.clear()
 	_btn_plays.clear()
 
-	for dir in SpriteData.dir_order:
+	for dir in _data.dir_order:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 20)
 
 		# ── Caja de animación izquierda ──
 		var anim_box := VBoxContainer.new()
-		anim_box.custom_minimum_size = Vector2(220, 0)
+		anim_box.custom_minimum_size = Vector2(320, 0)
 
 		var titulo := Label.new()
-		titulo.text = SpriteData.dir_names[dir]
+		titulo.text = _data.dir_names[dir]
 		titulo.add_theme_color_override("font_color", Color("#81c784"))
 		titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		anim_box.add_child(titulo)
 
+		# Wrapper para overlay del contador (1/6) sobre el sprite
+		var anim_wrap := Control.new()
+		anim_wrap.custom_minimum_size = Vector2(320, 180)
+		anim_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		anim_box.add_child(anim_wrap)
+
 		var anim_rect := TextureRect.new()
-		anim_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		anim_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		anim_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		anim_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		anim_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		anim_rect.custom_minimum_size = Vector2(220, 80)
-		anim_box.add_child(anim_rect)
+		anim_wrap.add_child(anim_rect)
 		_anim_rects[dir] = anim_rect
 
-		# Indicador de frame como Label encima
 		var frame_lbl := Label.new()
 		frame_lbl.name = "FrameLbl"
-		frame_lbl.add_theme_font_size_override("font_size", 10)
 		frame_lbl.text = "1/1"
-		frame_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		anim_box.add_child(frame_lbl)
+		frame_lbl.position = Vector2(6, 6)
+		frame_lbl.add_theme_font_size_override("font_size", 11)
+		frame_lbl.add_theme_color_override("font_color", Color("#e0e0e0"))
+		frame_lbl.add_theme_color_override("font_outline_color", Color("#000000"))
+		frame_lbl.add_theme_constant_override("outline_size", 2)
+		anim_wrap.add_child(frame_lbl)
 
 		# Controles de reproducción
 		var ctrl_row := HBoxContainer.new()
@@ -95,8 +177,12 @@ func _construir_filas() -> void:
 		var scroll := ScrollContainer.new()
 		scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.custom_minimum_size = Vector2(0, 140)
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 
 		var flow := HFlowContainer.new()
+		flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		flow.add_theme_constant_override("h_separation", 8)
 		flow.add_theme_constant_override("v_separation", 8)
 		scroll.add_child(flow)
@@ -107,7 +193,10 @@ func _construir_filas() -> void:
 
 # ── Actualizar la UI de frames (llamado cuando cambia config/grh_data) ──
 func actualizar_ui() -> void:
-	for dir in SpriteData.dir_order:
+	if not _data:
+		return
+	_recolocar_offset_controls_si_hace_falta()
+	for dir in _data.dir_order:
 		var flow: HFlowContainer = _frame_containers.get(dir)
 		if not flow:
 			continue
@@ -115,8 +204,8 @@ func actualizar_ui() -> void:
 			ch.queue_free()
 		_frame_items[dir] = []
 
-		var anim_grh_id: int = SpriteData.anim_grhs.get(dir, 0)
-		var anim_data: Dictionary = SpriteData.grh_data.get(anim_grh_id, {})
+		var anim_grh_id: int = _data.anim_grhs.get(dir, 0)
+		var anim_data: Dictionary = _data.grh_data.get(anim_grh_id, {})
 		if anim_data.get("type", 0) != 2:
 			continue
 
@@ -124,18 +213,79 @@ func actualizar_ui() -> void:
 			_crear_frame_item(dir, frame_id, flow)
 
 	redibujar_frames()
+	_restaurar_seleccion_si_existe()
+
+
+func _restaurar_seleccion_si_existe() -> void:
+	if not _data:
+		return
+	if _data.selected_grh_id < 0:
+		return
+	for dir in _frame_items:
+		for entry in _frame_items[dir]:
+			if entry.get("id", -1) == _data.selected_grh_id:
+				var it: Control = entry.get("item")
+				if it and is_instance_valid(it):
+					it.add_theme_stylebox_override("panel", _estilo_seleccionado())
+				var off: Control = entry.get("offset")
+				if off and is_instance_valid(off):
+					off.visible = true
+				return
+
+
+func redibujar_animaciones() -> void:
+	if not _data:
+		return
+	if not _data.sprite_image:
+		return
+	for dir in _data.dir_order:
+		var anim_grh_id: int = _data.anim_grhs.get(dir, 0)
+		var anim_data: Dictionary = _data.grh_data.get(anim_grh_id, {})
+		if anim_data.get("type", 0) == 2:
+			var frames: Array = anim_data["frames"]
+			var idx: int = _data.anim_states[dir]["current_frame"] % frames.size()
+			var single_id: int = frames[idx]
+			var grh: Dictionary = _data.grh_data.get(single_id, {})
+			if grh.get("type", 0) == 1:
+				var img := CanvasRenderer.renderizar_frame(
+					_data.sprite_image, _data.head_image,
+					grh, dir, _data.config
+				)
+				var tex := ImageTexture.create_from_image(img)
+				var rect: TextureRect = _anim_rects.get(dir)
+				if rect:
+					rect.texture = tex
+				var lbl := rect.get_parent().get_node_or_null("FrameLbl") if rect else null
+				if lbl:
+					lbl.text = "%d/%d" % [idx + 1, frames.size()]
 
 func _crear_frame_item(dir: String, frame_id: int, flow: HFlowContainer) -> void:
-	var item := VBoxContainer.new()
+	var item := PanelContainer.new()
 	item.name = "Frame_%d" % frame_id
+	item.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	item.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	margin.add_child(vbox)
 
 	var rect := TextureRect.new()
 	rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	rect.expand_mode = TextureRect.EXPAND_KEEP_SIZE
-	rect.stretch_mode = TextureRect.STRETCH_KEEP
+	rect.mouse_filter = Control.MOUSE_FILTER_STOP
+	rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rect.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	rect.custom_minimum_size = Vector2(
-		SpriteData.config["w"] * SpriteData.config["zoom"],
-		(SpriteData.config["h"] + 20) * SpriteData.config["zoom"]
+		_data.config["w"] * _data.config["zoom"],
+		(_data.config["h"] + 20) * _data.config["zoom"]
 	)
 
 	var lbl := Label.new()
@@ -143,23 +293,29 @@ func _crear_frame_item(dir: String, frame_id: int, flow: HFlowContainer) -> void
 	lbl.add_theme_font_size_override("font_size", 10)
 	lbl.add_theme_color_override("font_color", Color("#aaaaaa"))
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	item.add_child(rect)
-	item.add_child(lbl)
+	vbox.add_child(rect)
+	vbox.add_child(lbl)
+	var offset_inline := _crear_controles_offset_inline(item, frame_id)
+	offset_inline.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(offset_inline)
 
-	# Selección al clic
-	var btn_area := Button.new()
-	btn_area.flat = true
-	btn_area.pressed.connect(func(): _seleccionar_frame(frame_id, item))
-	btn_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	rect.mouse_entered.connect(func(): _aplicar_hover(item, true))
+	rect.mouse_exited.connect(func(): _aplicar_hover(item, false))
+
+	rect.gui_input.connect(func(event: InputEvent):
+		if event is InputEventMouseButton and event.pressed:
+			_seleccionar_frame(frame_id, item)
+	)
 
 	# Outline si ya está seleccionado
-	if SpriteData.selected_grh_id == frame_id:
+	if _data.selected_grh_id == frame_id:
 		item.add_theme_stylebox_override("panel", _estilo_seleccionado())
+		offset_inline.visible = true
 
 	flow.add_child(item)
-	_frame_items.get(dir, []).append({"rect": rect, "id": frame_id, "item": item})
+	_frame_items.get(dir, []).append({"rect": rect, "id": frame_id, "item": item, "offset": offset_inline})
 
 func _estilo_seleccionado() -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
@@ -167,43 +323,72 @@ func _estilo_seleccionado() -> StyleBoxFlat:
 	s.set_border_width_all(2)
 	return s
 
+func _estilo_hover() -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.border_color = Color("#4caf50")
+	s.set_border_width_all(2)
+	return s
+
+func _aplicar_hover(item: Control, activo: bool) -> void:
+	if not item or not is_instance_valid(item):
+		return
+	if not _data:
+		return
+	# No pisar el estilo del seleccionado
+	if _data.selected_grh_id >= 0 and item.name == ("Frame_%d" % _data.selected_grh_id):
+		return
+	if activo:
+		item.add_theme_stylebox_override("panel", _estilo_hover())
+	else:
+		item.remove_theme_stylebox_override("panel")
+
 # ── Seleccionar un frame ──────────────────────────────────
 func _seleccionar_frame(frame_id: int, item: Control) -> void:
+	if not item or not is_instance_valid(item):
+		return
 	# Quitar selección anterior
 	_limpiar_seleccion()
-	SpriteData.selected_grh_id = frame_id
+	if not _data:
+		return
+	_data.selected_grh_id = frame_id
 
 	item.add_theme_stylebox_override("panel", _estilo_seleccionado())
-
-	# Mover controles de offset debajo de este item
-	if offset_controls.get_parent():
-		offset_controls.get_parent().remove_child(offset_controls)
-	item.add_child(offset_controls)
-	offset_controls.show()
+	var inline: Control = item.find_child("OffsetInline", true, false)
+	if inline and is_instance_valid(inline):
+		inline.visible = true
+		if _logger:
+			_logger.call("log_msg", "PanelPreview: seleccionado frame Grh" + str(frame_id) + ", OffsetInline visible")
 
 func _limpiar_seleccion() -> void:
 	for dir in _frame_items:
 		for entry in _frame_items[dir]:
-			entry["item"].remove_theme_stylebox_override("panel")
+			var it: Control = entry.get("item")
+			if it and is_instance_valid(it):
+				it.remove_theme_stylebox_override("panel")
+			var off: Control = entry.get("offset")
+			if off and is_instance_valid(off):
+				off.visible = false
 
 # ── Redibujar todos los frames y canvas animados ──────────
 func redibujar_frames() -> void:
-	if not SpriteData.sprite_image:
+	if not _data:
+		return
+	if not _data.sprite_image:
 		return
 
-	for dir in SpriteData.dir_order:
+	for dir in _data.dir_order:
 		# Redibujar canvas animado
-		var anim_grh_id: int = SpriteData.anim_grhs.get(dir, 0)
-		var anim_data: Dictionary = SpriteData.grh_data.get(anim_grh_id, {})
+		var anim_grh_id: int = _data.anim_grhs.get(dir, 0)
+		var anim_data: Dictionary = _data.grh_data.get(anim_grh_id, {})
 		if anim_data.get("type", 0) == 2:
 			var frames: Array = anim_data["frames"]
-			var idx: int = SpriteData.anim_states[dir]["current_frame"] % frames.size()
+			var idx: int = _data.anim_states[dir]["current_frame"] % frames.size()
 			var single_id: int = frames[idx]
-			var grh: Dictionary = SpriteData.grh_data.get(single_id, {})
+			var grh: Dictionary = _data.grh_data.get(single_id, {})
 			if grh.get("type", 0) == 1:
 				var img := CanvasRenderer.renderizar_frame(
-					SpriteData.sprite_image, SpriteData.head_image,
-					grh, dir, SpriteData.config
+					_data.sprite_image, _data.head_image,
+					grh, dir, _data.config
 				)
 				var tex := ImageTexture.create_from_image(img)
 				var rect: TextureRect = _anim_rects.get(dir)
@@ -216,11 +401,11 @@ func redibujar_frames() -> void:
 
 		# Redibujar frames individuales
 		for entry in _frame_items.get(dir, []):
-			var grh: Dictionary = SpriteData.grh_data.get(entry["id"], {})
+			var grh: Dictionary = _data.grh_data.get(entry["id"], {})
 			if grh.get("type", 0) == 1:
 				var img := CanvasRenderer.renderizar_frame(
-					SpriteData.sprite_image, SpriteData.head_image,
-					grh, dir, SpriteData.config
+					_data.sprite_image, _data.head_image,
+					grh, dir, _data.config
 				)
 				var tex := ImageTexture.create_from_image(img)
 				var r: TextureRect = entry["rect"]
@@ -229,28 +414,32 @@ func redibujar_frames() -> void:
 
 # ── Controles de reproducción ─────────────────────────────
 func _toggle_play(dir: String) -> void:
-	var estado: Dictionary = SpriteData.anim_states[dir]
+	if not _data:
+		return
+	var estado: Dictionary = _data.anim_states[dir]
 	estado["playing"] = not estado["playing"]
 	var btn: Button = _btn_plays.get(dir)
 	if btn:
 		btn.text = "⏸️" if estado["playing"] else "▶️"
 
 func _step_frame(dir: String, delta: int) -> void:
-	SpriteData.anim_states[dir]["playing"] = false
+	if not _data:
+		return
+	_data.anim_states[dir]["playing"] = false
 	var btn: Button = _btn_plays.get(dir)
 	if btn:
 		btn.text = "▶️"
-	SpriteData.anim_states[dir]["current_frame"] += delta
-	if SpriteData.anim_states[dir]["current_frame"] < 0:
-		SpriteData.anim_states[dir]["current_frame"] = 99999
+	_data.anim_states[dir]["current_frame"] += delta
+	if _data.anim_states[dir]["current_frame"] < 0:
+		_data.anim_states[dir]["current_frame"] = 99999
 	redibujar_frames()
 
 	# Auto-seleccionar frame mostrado
-	var anim_grh_id: int = SpriteData.anim_grhs.get(dir, 0)
-	var anim_data: Dictionary = SpriteData.grh_data.get(anim_grh_id, {})
+	var anim_grh_id: int = _data.anim_grhs.get(dir, 0)
+	var anim_data: Dictionary = _data.grh_data.get(anim_grh_id, {})
 	if anim_data.get("type", 0) == 2:
 		var frames: Array = anim_data["frames"]
-		var idx: int = SpriteData.anim_states[dir]["current_frame"] % frames.size()
+		var idx: int = _data.anim_states[dir]["current_frame"] % frames.size()
 		var frame_id: int = frames[idx]
 		for entry in _frame_items.get(dir, []):
 			if entry["id"] == frame_id:

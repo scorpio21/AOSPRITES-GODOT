@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/PanelPreview.gd" id="1_preview"]
+[ext_resource type="Script" path="res://scripts/PanelPreview.gd" id="1"]
 
-[node name="PanelPreview" type="PanelContainer" script=ExtResource("1_preview")]
+[node name="PanelPreview" type="PanelContainer" script=ExtResource("1")]
 size_flags_horizontal = 3
 
 [node name="Margin" type="MarginContainer" parent="."]

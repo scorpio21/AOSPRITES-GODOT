@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/PanelCodigo.gd" id="1_codigo"]
+[ext_resource type="Script" path="res://scripts/PanelCodigo.gd" id="1"]
 
-[node name="PanelCodigo" type="PanelContainer" script=ExtResource("1_codigo")]
+[node name="PanelCodigo" type="PanelContainer" script=ExtResource("1")]
 size_flags_horizontal = 3
 
 [node name="Margin" type="MarginContainer" parent="."]
@@ -44,6 +44,14 @@ layout_mode = 2
 text = "Graficos.ini (Editable)"
 theme_override_colors/font_color = Color(0.506, 0.784, 0.518, 1)
 
+[node name="BtnGuardarGrh" type="Button" parent="Margin/VBox/HBox/VBoxGrh"]
+layout_mode = 2
+text = "Guardar Graficos.ini"
+
+[node name="BtnAplicarGrh" type="Button" parent="Margin/VBox/HBox/VBoxGrh"]
+layout_mode = 2
+text = "Aplicar indexación al preview"
+
 [node name="GrhEdit" type="TextEdit" parent="Margin/VBox/HBox/VBoxGrh"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 300)
@@ -64,8 +72,24 @@ layout_mode = 2
 text = "Cuerpos.ini"
 theme_override_colors/font_color = Color(0.506, 0.784, 0.518, 1)
 
+[node name="BtnGuardarBody" type="Button" parent="Margin/VBox/HBox/VBoxBody"]
+layout_mode = 2
+text = "Guardar Cuerpos.ini"
+
 [node name="BodyEdit" type="TextEdit" parent="Margin/VBox/HBox/VBoxBody"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 200)
 size_flags_vertical = 3
 editable = false
+
+[node name="DialogGuardarGrh" type="FileDialog" parent="."]
+title = "Guardar Graficos.ini"
+file_mode = 4
+access = 2
+filters = PackedStringArray("*.ini ; INI")
+
+[node name="DialogGuardarBody" type="FileDialog" parent="."]
+title = "Guardar Cuerpos.ini"
+file_mode = 4
+access = 2
+filters = PackedStringArray("*.ini ; INI")

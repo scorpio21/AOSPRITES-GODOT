@@ -1,12 +1,12 @@
 [gd_scene load_steps=6 format=3]
 
-[ext_resource type="Script" path="res://scripts/MainUI.gd" id="1_main"]
-[ext_resource type="PackedScene" path="res://scenes/PanelCargar.tscn" id="2_cargar"]
-[ext_resource type="PackedScene" path="res://scenes/PanelAjustes.tscn" id="3_ajustes"]
-[ext_resource type="PackedScene" path="res://scenes/PanelPreview.tscn" id="4_preview"]
-[ext_resource type="PackedScene" path="res://scenes/PanelCodigo.tscn" id="5_codigo"]
+[ext_resource type="Script" path="res://scripts/MainUI.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/PanelCargar.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/PanelAjustes.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/PanelPreview.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/PanelCodigo.tscn" id="5"]
 
-[node name="Main" type="Control" script=ExtResource("1_main")]
+[node name="Main" type="Control" script=ExtResource("1")]
 anchor_right = 1.0
 anchor_bottom = 1.0
 
@@ -18,16 +18,6 @@ color = Color(0.071, 0.071, 0.071, 1)
 [node name="TimerAnim" type="Timer" parent="."]
 wait_time = 0.1
 autostart = false
-
-[node name="ScrollContainer" type="ScrollContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-horizontal_scroll_mode = 0
 
 [node name="DebugLog" type="Label" parent="."]
 layout_mode = 1
@@ -44,12 +34,29 @@ text = "Esperando acciones..."
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="VBox" type="VBoxContainer" parent="ScrollContainer"]
+[node name="MainVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="TopBar" type="HBoxContainer" parent="MainVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 0
+theme_override_constants/separation = 8
 
-[node name="Header" type="Label" parent="ScrollContainer/VBox"]
+[node name="Spacer" type="Control" parent="MainVBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MenuAyuda" type="MenuButton" parent="MainVBox/TopBar"]
+layout_mode = 2
+text = "Ayuda"
+
+[node name="Header" type="Label" parent="MainVBox"]
 layout_mode = 2
 text = "Procesador de Cuerpos (AO)"
 horizontal_alignment = 1
@@ -58,16 +65,57 @@ theme_override_colors/font_color = Color(0.298, 0.686, 0.314, 1)
 theme_override_constants/margin_top = 15
 theme_override_constants/margin_bottom = 10
 
-[node name="PanelCargar" parent="ScrollContainer/VBox" instance=ExtResource("2_cargar")]
+[node name="Tabs" type="TabContainer" parent="MainVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TabCargar" type="ScrollContainer" parent="MainVBox/Tabs"]
+layout_mode = 2
+tab_title = "1. Cargar Gráfico (.png)"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabCargar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="PanelCargar" parent="MainVBox/Tabs/TabCargar/VBox" instance=ExtResource("2")]
 layout_mode = 2
 
-[node name="PanelAjustes" parent="ScrollContainer/VBox" instance=ExtResource("3_ajustes")]
+[node name="TabTrabajo" type="ScrollContainer" parent="MainVBox/Tabs"]
+layout_mode = 2
+tab_title = "2. Ajustes + Previsualización"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabTrabajo"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="PanelAjustes" parent="MainVBox/Tabs/TabTrabajo/VBox" instance=ExtResource("3")]
 layout_mode = 2
 
-[node name="PanelPreview" parent="ScrollContainer/VBox" instance=ExtResource("4_preview")]
+[node name="PanelPreview" parent="MainVBox/Tabs/TabTrabajo/VBox" instance=ExtResource("4")]
 layout_mode = 2
 
-[node name="PanelCodigo" parent="ScrollContainer/VBox" instance=ExtResource("5_codigo")]
+[node name="TabCodigo" type="ScrollContainer" parent="MainVBox/Tabs"]
+layout_mode = 2
+tab_title = "4. Código Generado"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="MainVBox/Tabs/TabCodigo"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="PanelCodigo" parent="MainVBox/Tabs/TabCodigo/VBox" instance=ExtResource("5")]
 layout_mode = 2
 
 

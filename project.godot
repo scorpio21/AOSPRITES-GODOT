@@ -17,33 +17,32 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 config/name="AOSprites"
 config/description="Procesador de Cuerpos para Argentum Online"
 run/main_scene="res://scenes/Main.tscn"
-config/features=PackedStringArray("4.3", "Forward Plus")
-config/icon="res://assets/head.png"
-
-[debug]
-
-gdscript/warnings/integer_division=0
-
-[logging]
-
-file_logging/enable_file_logging=true
-file_logging/log_path="user://godot.log"
-file_logging/max_log_files=5
-
+config/features=PackedStringArray("4.6", "Forward Plus")
+config/icon="res://assets/logo.png"
 
 [autoload]
 
 AOLogger="*res://scripts/AOLogger.gd"
 SpriteData="*res://scripts/SpriteData.gd"
 
+[debug]
+
+gdscript/warnings/integer_division=0
+
 [display]
 
-window/size/viewport_width=1150
-window/size/viewport_height=800
-window/size/min_width=900
-window/size/min_height=600
+window/size/viewport_width=1400
+window/size/viewport_height=900
+window/size/min_width=1100
+window/size/min_height=700
 window/drop_files/enabled=true
 display/window/subwindows/embed_subwindows=false
+
+[logging]
+
+file_logging/enable_file_logging=true
+file_logging/log_path="res://log/godot.log"
+file_logging/max_log_files=5
 
 [rendering]
 

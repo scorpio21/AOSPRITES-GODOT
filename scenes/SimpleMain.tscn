@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/SimpleMain.gd" id="1_simple"]
+
+[node name="Main" type="Control" script=ExtResource("1_simple")]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="DebugLog" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "Esperando acciones..."
+horizontal_alignment = 1
+vertical_alignment = 1

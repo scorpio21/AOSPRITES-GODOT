@@ -5,18 +5,23 @@ extends PanelContainer
 
 signal config_cambiada(regenerar: bool)
 
-@onready var spin_last_grh: SpinBox   = $Margin/VBox/GridTop/SpinLastGrh
-@onready var spin_width: SpinBox      = $Margin/VBox/GridTop/SpinWidth
-@onready var spin_height: SpinBox     = $Margin/VBox/GridTop/SpinHeight
-@onready var spin_speed: SpinBox      = $Margin/VBox/GridTop/SpinSpeed
-@onready var spin_zoom: SpinBox       = $Margin/VBox/GridTop/SpinZoom
-@onready var check_grid: CheckBox     = $Margin/VBox/GridTop/CheckGrid
-@onready var spin_hox: SpinBox        = $Margin/VBox/GridOffsets/SpinHox
-@onready var spin_hoy: SpinBox        = $Margin/VBox/GridOffsets/SpinHoy
+@onready var spin_last_grh: SpinBox   = $Margin/VBox/GridTop/NumGrh/SpinLastGrh
+@onready var spin_width: SpinBox      = $Margin/VBox/GridTop/FilaConfig/ColAncho/SpinWidth
+@onready var spin_height: SpinBox     = $Margin/VBox/GridTop/FilaConfig/ColAlto/SpinHeight
+@onready var spin_speed: SpinBox      = $Margin/VBox/GridTop/FilaConfig/ColVel/SpinSpeed
+@onready var spin_zoom: SpinBox       = $Margin/VBox/GridTop/FilaConfig/ColZoom/SpinZoom
+@onready var check_grid: CheckBox     = $Margin/VBox/GridTop/FilaConfig/CheckGrid
+@onready var spin_hox: SpinBox        = $Margin/VBox/GridOffsets/ColHox/SpinHox
+@onready var spin_hoy: SpinBox        = $Margin/VBox/GridOffsets/ColHoy/SpinHoy
+
+var _data: Node = null
 
 func _ready() -> void:
+	_data = get_node_or_null("/root/SpriteData")
+	if not _data:
+		return
 	# Valores iniciales desde SpriteData
-	var cfg := SpriteData.config
+	var cfg: Dictionary = _data.config
 	spin_last_grh.value = cfg["last_grh"]
 	spin_width.value    = cfg["w"]
 	spin_height.value   = cfg["h"]
@@ -36,7 +41,9 @@ func _ready() -> void:
 	check_grid.toggled.connect(func(_v): _actualizar(false))
 
 func _actualizar(regenerar: bool) -> void:
-	var cfg := SpriteData.config
+	if not _data:
+		return
+	var cfg: Dictionary = _data.config
 	cfg["last_grh"] = int(spin_last_grh.value)
 	cfg["w"]        = int(spin_width.value)
 	cfg["h"]        = int(spin_height.value)

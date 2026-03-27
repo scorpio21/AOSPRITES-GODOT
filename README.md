@@ -21,9 +21,18 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 1. Abrir el proyecto en Godot: `File → Open Project → AOSPRITES-GODOT/`
 2. Presionar **F5** para ejecutar
 3. Cargar una imagen PNG del sprite sheet (debe ser compatible con el formato AO)
-4. Ajustar parámetros en el Panel 2
-5. En Panel 3, hacer clic en un frame estático y usar los botones o flechas del teclado para ajustar el offset
-6. Copiar el código generado en Panel 4 a los archivos `.ini` del juego
+4. Navegar por solapas:
+5. Ajustar parámetros en la solapa 2
+6. En la solapa 3, hacer clic en un frame estático y usar los botones o flechas del teclado para ajustar el offset
+7. Copiar el código generado en la solapa 4 a los archivos `.ini` del juego
+
+En la solapa **4. Código Generado** puedes pegar/editar tu indexación en `Graficos.ini (Editable)` y presionar **Aplicar indexación al preview** para verificar coordenadas (cuerpo + cabeza) y animación. También puedes usar los botones para guardar directamente `Graficos.ini` y `Cuerpos.ini`.
+
+Menú **Ayuda → Acerca de...** incluye una breve explicación de la herramienta y créditos al autor del proyecto web original.
+
+## Logs
+
+Los logs se guardan dentro del proyecto en la carpeta `log/`.
 
 ## Exportar como .exe standalone
 
@@ -33,7 +42,7 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 
 ## Estructura del proyecto
 
-```
+```text
 AOSPRITES-GODOT/
 ├── project.godot
 ├── assets/
