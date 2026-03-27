@@ -1,120 +1,116 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://cwdr5y1ihfvwq"]
 
-[ext_resource type="Script" path="res://scripts/PanelCodigo.gd" id="1"]
-
-[node name="PanelCodigo" type="PanelContainer" script=ExtResource("1")]
+[node name="PanelCodigo" type="PanelContainer" unique_id=1584000976]
 size_flags_horizontal = 3
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=926672769]
 layout_mode = 2
 theme_override_constants/margin_left = 20
-theme_override_constants/margin_right = 20
 theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 15
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin" unique_id=771709433]
 layout_mode = 2
 
-[node name="Header" type="Label" parent="Margin/VBox"]
+[node name="Header" type="Label" parent="Margin/VBox" unique_id=1542464437]
 layout_mode = 2
-text = "4. Código Generado"
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.878, 0.878, 0.878, 1)
-
-[node name="Separator" type="HSeparator" parent="Margin/VBox"]
-layout_mode = 2
-
-[node name="InfoLabel" type="Label" parent="Margin/VBox"]
-layout_mode = 2
-text = "Edita los Grh para ajustar coordenadas (X, Y, Ancho, Alto). Formato: GrhX=1-NumArchivo-X-Y-Ancho-Alto. Animaciones: GrhX=NumFrames-Frame1-Frame2...-Velocidad."
 theme_override_font_sizes/font_size = 14
+text = "4. Código Generado"
+
+[node name="Separator" type="HSeparator" parent="Margin/VBox" unique_id=1138893294]
+layout_mode = 2
+
+[node name="InfoLabel" type="Label" parent="Margin/VBox" unique_id=1410356566]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.149, 0, 0.988, 1)
+theme_override_font_sizes/font_size = 14
+text = "Edita los Grh para ajustar coordenadas (X, Y, Ancho, Alto). Formato: GrhX=1-NumArchivo-X-Y-Ancho-Alto. Animaciones: GrhX=NumFrames-Frame1-Frame2...-Velocidad."
 autowrap_mode = 3
 
-[node name="HBox" type="HBoxContainer" parent="Margin/VBox"]
+[node name="HBox" type="HBoxContainer" parent="Margin/VBox" unique_id=922445653]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="VBoxGrh" type="VBoxContainer" parent="Margin/VBox/HBox"]
+[node name="VBoxGrh" type="VBoxContainer" parent="Margin/VBox/HBox" unique_id=389896644]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LabelGrh" type="Label" parent="Margin/VBox/HBox/VBoxGrh"]
-layout_mode = 2
-text = "Graficos.ini (Editable)"
-theme_override_colors/font_color = Color(0.506, 0.784, 0.518, 1)
-
-[node name="BtnGuardarGrh" type="Button" parent="Margin/VBox/HBox/VBoxGrh"]
+[node name="BtnGuardarGrh" type="Button" parent="Margin/VBox/HBox/VBoxGrh" unique_id=1178764321]
 layout_mode = 2
 text = "Guardar Graficos.ini"
 
-[node name="BtnAplicarGrh" type="Button" parent="Margin/VBox/HBox/VBoxGrh"]
+[node name="BtnAplicarGrh" type="Button" parent="Margin/VBox/HBox/VBoxGrh" unique_id=1605237843]
 layout_mode = 2
 text = "Aplicar indexación al preview"
 
-[node name="BtnReset" type="Button" parent="Margin/VBox/HBox/VBoxGrh"]
+[node name="BtnReset" type="Button" parent="Margin/VBox/HBox/VBoxGrh" unique_id=346808941]
 layout_mode = 2
 text = "Reset/Limpiar"
 
-[node name="BtnCopiarGrh" type="Button" parent="Margin/VBox/HBox/VBoxGrh"]
+[node name="BtnCopiarGrh" type="Button" parent="Margin/VBox/HBox/VBoxGrh" unique_id=1438062664]
 layout_mode = 2
 text = "Copiar Graficos.ini"
 
-[node name="BtnExportarInd" type="Button" parent="Margin/VBox/HBox/VBoxGrh"]
+[node name="BtnExportarInd" type="Button" parent="Margin/VBox/HBox/VBoxGrh" unique_id=1570810619]
+visible = false
 layout_mode = 2
-text = "Exportar .ind (Binario)"
 tooltip_text = "Exporta el archivo Graficos.ind en formato binario compatible con el cliente AO. Usa Integer o Long según la configuración en Ajustes."
- disabled = true
- visible = false
+disabled = true
+text = "Exportar .ind (Binario)"
 
-[node name="GrhEdit" type="TextEdit" parent="Margin/VBox/HBox/VBoxGrh"]
-layout_mode = 2
+[node name="GrhEdit" type="TextEdit" parent="Margin/VBox/HBox/VBoxGrh" unique_id=215214381]
 custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GrhError" type="Label" parent="Margin/VBox/HBox/VBoxGrh"]
+[node name="LabelGrh" type="Label" parent="Margin/VBox/HBox/VBoxGrh" unique_id=1267878746]
 layout_mode = 2
-text = ""
+theme_override_colors/font_color = Color(0.506, 0.784, 0.518, 1)
+text = "Graficos.ini (Editable)"
+horizontal_alignment = 1
+
+[node name="GrhError" type="Label" parent="Margin/VBox/HBox/VBoxGrh" unique_id=1766385235]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.957, 0.263, 0.212, 1)
 theme_override_font_sizes/font_size = 11
 
-[node name="VBoxBody" type="VBoxContainer" parent="Margin/VBox/HBox"]
+[node name="VBoxBody" type="VBoxContainer" parent="Margin/VBox/HBox" unique_id=1103259134]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LabelBody" type="Label" parent="Margin/VBox/HBox/VBoxBody"]
-layout_mode = 2
-text = "Cuerpos.ini"
-theme_override_colors/font_color = Color(0.506, 0.784, 0.518, 1)
-
-[node name="BtnGuardarBody" type="Button" parent="Margin/VBox/HBox/VBoxBody"]
+[node name="BtnGuardarBody" type="Button" parent="Margin/VBox/HBox/VBoxBody" unique_id=1688626878]
 layout_mode = 2
 text = "Guardar Cuerpos.ini"
 
-[node name="BtnCopiarBody" type="Button" parent="Margin/VBox/HBox/VBoxBody"]
+[node name="BtnCopiarBody" type="Button" parent="Margin/VBox/HBox/VBoxBody" unique_id=1700924246]
 layout_mode = 2
 text = "Copiar Cuerpos.ini"
 
-[node name="BodyEdit" type="TextEdit" parent="Margin/VBox/HBox/VBoxBody"]
-layout_mode = 2
+[node name="BodyEdit" type="TextEdit" parent="Margin/VBox/HBox/VBoxBody" unique_id=762328098]
 custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
 size_flags_vertical = 3
 editable = false
 
-[node name="DialogGuardarGrh" type="FileDialog" parent="."]
+[node name="LabelBody" type="Label" parent="Margin/VBox/HBox/VBoxBody" unique_id=490500258]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.506, 0.784, 0.518, 1)
+text = "Cuerpos.ini"
+horizontal_alignment = 1
+
+[node name="DialogGuardarGrh" type="FileDialog" parent="." unique_id=1316377793]
 title = "Guardar Graficos.ini"
-file_mode = 4
 access = 2
 filters = PackedStringArray("*.ini ; INI")
 
-[node name="DialogGuardarBody" type="FileDialog" parent="."]
+[node name="DialogGuardarBody" type="FileDialog" parent="." unique_id=1845780734]
 title = "Guardar Cuerpos.ini"
-file_mode = 4
 access = 2
 filters = PackedStringArray("*.ini ; INI")
 
-[node name="DialogGuardarInd" type="FileDialog" parent="."]
+[node name="DialogGuardarInd" type="FileDialog" parent="." unique_id=32169956]
 title = "Exportar Graficos.ind"
-file_mode = 4
 access = 2
 filters = PackedStringArray("*.ind ; IND")
