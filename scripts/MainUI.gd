@@ -11,6 +11,9 @@ extends Control
 @onready var panel_preview = $MainVBox/Tabs/TabTrabajo/VBox/PanelPreview
 @onready var panel_codigo = $MainVBox/Tabs/TabCodigo/VBox/PanelCodigo
 @onready var timer_anim: Timer             = $TimerAnim
+@onready var timer_status: Timer           = $TimerStatus
+@onready var lbl_reloj: Label              = $MainVBox/StatusBar/HBox/LblReloj
+@onready var lbl_version: Label            = $MainVBox/StatusBar/HBox/LblVersion
 
 # ── Estado interno ────────────────────────────────────────
 var data
@@ -40,6 +43,7 @@ func _ready() -> void:
 	if visual_debug: visual_debug.text = "MAIN UI CARGADA"
 
 	_inicializar_menu_ayuda()
+	_inicializar_statusbar()
 
 	_logger = get_node_or_null("/root/AOLogger")
 	if not _logger:
@@ -76,6 +80,33 @@ func _ready() -> void:
 	if _logger:
 		_logger.call("log_msg", "MainUI: _ready() completo")
 	print("!!! MainUI: _ready() END !!!")
+
+
+func _inicializar_statusbar() -> void:
+	if lbl_version:
+		var version := str(ProjectSettings.get_setting("application/config/version", "1.0"))
+		var edicion := str(ProjectSettings.get_setting("application/config/edition", "PRO")).strip_edges()
+		var sufijo := " " + edicion if edicion != "" else ""
+		lbl_version.text = "v" + version + sufijo
+	_actualizar_reloj()
+	if timer_status:
+		if not timer_status.timeout.is_connected(_on_timer_status_tick):
+			timer_status.timeout.connect(_on_timer_status_tick)
+		timer_status.start()
+
+
+func _on_timer_status_tick() -> void:
+	_actualizar_reloj()
+
+
+func _actualizar_reloj() -> void:
+	if not lbl_reloj:
+		return
+	var t: Dictionary = Time.get_time_dict_from_system()
+	var hh: String = str(int(t.get("hour", 0))).pad_zeros(2)
+	var mm: String = str(int(t.get("minute", 0))).pad_zeros(2)
+	var ss: String = str(int(t.get("second", 0))).pad_zeros(2)
+	lbl_reloj.text = "🕒 %s:%s:%s" % [hh, mm, ss]
 
 func _exit_tree() -> void:
 	if is_instance_valid(_about_window):
@@ -184,6 +215,21 @@ func on_config_cambiada(regenerar: bool) -> void:
 	var resultado := GrhParser.parse(panel_codigo.get_grh_text())
 	if resultado["ok"]:
 		data.grh_data = resultado["data"]
+		data.anim_grhs = GrhParser.detectar_anim_grhs(data.grh_data, data.config)
+
+		var min_grh_id := 0
+		for k in data.grh_data.keys():
+			var kid := int(k)
+			if min_grh_id == 0 or kid < min_grh_id:
+				min_grh_id = kid
+		if min_grh_id > 1:
+			var sugerido_last := min_grh_id - 1
+			if sugerido_last > 0 and sugerido_last != int(data.config.get("last_grh", 0)):
+				if sugerido_last < int(data.config.get("last_grh", 0)):
+					data.config["last_grh"] = sugerido_last
+					if panel_ajustes and panel_ajustes.has_method("set_last_grh_sin_emitir"):
+						panel_ajustes.call("set_last_grh_sin_emitir", sugerido_last)
+
 		panel_codigo.limpiar_error()
 		_actualizar_velocidad(data.config["speed"])
 		panel_preview.actualizar_ui()

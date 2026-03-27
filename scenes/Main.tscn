@@ -1,10 +1,13 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/MainUI.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/PanelCargar.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/PanelAjustes.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/PanelPreview.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/PanelCodigo.tscn" id="5"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_statusbar"]
+ bg_color = Color(0.208, 0.682, 0.886, 1)
 
 [node name="Main" type="Control" script=ExtResource("1")]
 anchor_right = 1.0
@@ -17,6 +20,10 @@ color = Color(0.071, 0.071, 0.071, 1)
 
 [node name="TimerAnim" type="Timer" parent="."]
 wait_time = 0.1
+autostart = false
+
+[node name="TimerStatus" type="Timer" parent="."]
+wait_time = 1.0
 autostart = false
 
 [node name="DebugLog" type="Label" parent="."]
@@ -117,5 +124,31 @@ theme_override_constants/separation = 0
 
 [node name="PanelCodigo" parent="MainVBox/Tabs/TabCodigo/VBox" instance=ExtResource("5")]
 layout_mode = 2
+
+[node name="StatusBar" type="PanelContainer" parent="MainVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 28)
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_statusbar")
+
+[node name="HBox" type="HBoxContainer" parent="MainVBox/StatusBar"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Spacer" type="Control" parent="MainVBox/StatusBar/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LblVersion" type="Label" parent="MainVBox/StatusBar/HBox"]
+layout_mode = 2
+text = "v1.0 PRO"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+
+[node name="LblReloj" type="Label" parent="MainVBox/StatusBar/HBox"]
+layout_mode = 2
+text = "🕒 00:00:00"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 
 

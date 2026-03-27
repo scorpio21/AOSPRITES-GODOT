@@ -59,6 +59,39 @@ static func parse(texto: String) -> Dictionary:
 
 	return {"ok": true, "data": resultado, "error": ""}
 
+
+static func detectar_anim_grhs(grh_data: Dictionary, config: Dictionary) -> Dictionary:
+	var filas_y: Dictionary = {
+		"down": 0,
+		"up": int(config.get("h", 45)),
+		"left": int(config.get("h", 45)) * 2,
+		"right": int(config.get("h", 45)) * 3
+	}
+	var salida: Dictionary = {"up": 0, "down": 0, "right": 0, "left": 0}
+	var mejor_dist: Dictionary = {"up": 999999, "down": 999999, "right": 999999, "left": 999999}
+
+	for grh_id in grh_data.keys():
+		var entry: Dictionary = grh_data.get(grh_id, {})
+		if entry.get("type", 0) != 2:
+			continue
+		var frames: Array = entry.get("frames", [])
+		if frames.is_empty():
+			continue
+		var frame0_id: int = int(frames[0])
+		var frame0: Dictionary = grh_data.get(frame0_id, {})
+		if frame0.get("type", 0) != 1:
+			continue
+		var y0: int = int(frame0.get("y", 0))
+
+		for dir in ["down", "up", "left", "right"]:
+			var objetivo: int = int(filas_y[dir])
+			var dist: int = abs(y0 - objetivo)
+			if dist < int(mejor_dist[dir]):
+				mejor_dist[dir] = dist
+				salida[dir] = int(grh_id)
+
+	return salida
+
 # --------------------------------------------------------
 # Generar texto Graficos.ini desde config
 # --------------------------------------------------------

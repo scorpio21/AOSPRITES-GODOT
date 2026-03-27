@@ -40,6 +40,13 @@ Los logs se guardan dentro del proyecto en la carpeta `log/`.
 2. Seleccionar "Windows Desktop"
 3. Clic en "Export Project" y guardar el `.exe`
 
+## Versión (StatusBar)
+
+La versión que se muestra en la barra inferior se toma automáticamente de `project.godot`:
+
+- `application/config/version`
+- `application/config/edition`
+
 ## Estructura del proyecto
 
 ```text

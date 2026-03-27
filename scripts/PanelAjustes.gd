@@ -53,3 +53,11 @@ func _actualizar(regenerar: bool) -> void:
 	cfg["hox"]      = int(spin_hox.value)
 	cfg["hoy"]      = int(spin_hoy.value)
 	config_cambiada.emit(regenerar)
+
+
+func set_last_grh_sin_emitir(valor: int) -> void:
+	if not spin_last_grh:
+		return
+	spin_last_grh.set_block_signals(true)
+	spin_last_grh.value = valor
+	spin_last_grh.set_block_signals(false)
