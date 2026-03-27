@@ -78,4 +78,10 @@ Puedes encontrar el código fuente y las últimas actualizaciones en:
 
 ## Créditos
 
-Puerto de [AOSPRITES-WEB](https://github.com/BSG-Walter/AOSPRITES-WEB) a Godot 4.
+Este proyecto está inspirado en el diseño y la lógica del proyecto web **AOSPRITES-WEB** creado por **[BSG-Walter](https://github.com/BSG-Walter)**.
+
+- **Autor del proyecto web original**: [BSG-Walter](https://github.com/BSG-Walter)
+- **Repositorio original**: [AOSPRITES-WEB](https://github.com/BSG-Walter/AOSPRITES-WEB)
+- **Puerto a Godot 4**: [scorpio21](https://github.com/scorpio21)
+
+Agradecimientos especiales a BSG-Walter por su excelente trabajo y por compartir el código fuente que sirvió como base e inspiración para esta versión desktop.
