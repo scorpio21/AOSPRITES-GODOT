@@ -20,10 +20,10 @@ var _frame_containers: Dictionary = {} # dir → HFlowContainer con frame items
 var _frame_items: Dictionary = {}    # dir → Array de {rect, label, id}
 var _btn_plays: Dictionary = {}      # dir → Button ⏸️
 
-const _COLOR_BOTON_NORMAL := Color(0.0, 1.0, 0.016, 1.0)
-const _COLOR_BOTON_HOVER := Color(0.0, 1.0, 0.016, 1.0)
-const _COLOR_BOTON_PRESSED := Color(0.0, 1.0, 0.016, 1.0)
-const _COLOR_BOTON_TEXTO := Color(0.0, 0.0, 0.003, 1.0)
+const _COLOR_BOTON_NORMAL := Color(0.235294, 0.239216, 0.235294, 1.0) # #3C3D3C
+const _COLOR_BOTON_HOVER := Color(0.203922, 0.203922, 0.203922, 1.0)  # #343434
+const _COLOR_BOTON_PRESSED := Color(0.172549, 0.172549, 0.172549, 1.0) # #2C2C2C
+const _COLOR_BOTON_TEXTO := Color(1.0, 1.0, 1.0, 1.0)
 
 func _ready() -> void:
 	await get_tree().process_frame
@@ -64,9 +64,30 @@ func _recolocar_offset_controls_si_hace_falta() -> void:
 
 
 func _crear_controles_offset_inline(_item: Control, _frame_id: int) -> Control:
+	var panel := PanelContainer.new()
+	panel.name = "OffsetInline"
+	panel.visible = false
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var estilo_panel := StyleBoxFlat.new()
+	estilo_panel.bg_color = Color(0.12, 0.12, 0.12, 0.85)
+	estilo_panel.border_color = Color(1.0, 0.92, 0.23, 1.0)
+	estilo_panel.set_border_width_all(2)
+	estilo_panel.set_corner_radius_all(8)
+	panel.add_theme_stylebox_override("panel", estilo_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	panel.add_child(margin)
+
 	var box := VBoxContainer.new()
-	box.name = "OffsetInline"
-	box.visible = false
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 10)
+	margin.add_child(box)
 
 	var btn_up_local := Button.new()
 	btn_up_local.text = "Arriba"
@@ -79,6 +100,7 @@ func _crear_controles_offset_inline(_item: Control, _frame_id: int) -> Control:
 
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 10)
 
 	var btn_left_local := Button.new()
 	btn_left_local.text = "Izquierda"
@@ -108,7 +130,7 @@ func _crear_controles_offset_inline(_item: Control, _frame_id: int) -> Control:
 	row.add_child(btn_right_local)
 
 	box.add_child(row)
-	return box
+	return panel
 
 # ── Construir filas de dirección ──────────────────────────
 func _construir_filas() -> void:
@@ -307,7 +329,7 @@ func _crear_frame_item(dir: String, frame_id: int, flow: HFlowContainer) -> void
 	var lbl := Label.new()
 	lbl.text = "Grh%d" % frame_id
 	lbl.add_theme_font_size_override("font_size", 15)
-	lbl.add_theme_color_override("font_color", Color("4caf50"))  # Verde para GrhXXXX
+	lbl.add_theme_color_override("font_color", Color("b0b0b0"))
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
@@ -351,16 +373,16 @@ func _estilizar_boton_control(btn: Button) -> void:
 		return
 	btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	btn.custom_minimum_size = Vector2(44, 32)
+	btn.custom_minimum_size = Vector2(120, 34)
 	btn.add_theme_color_override("font_color", _COLOR_BOTON_TEXTO)
 	btn.add_theme_color_override("font_hover_color", _COLOR_BOTON_TEXTO)
 	btn.add_theme_color_override("font_pressed_color", _COLOR_BOTON_TEXTO)
 
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = _COLOR_BOTON_NORMAL
-	normal.border_color = Color(0.15, 0.15, 0.15, 1)
+	normal.border_color = Color(0.35, 0.35, 0.35, 1.0)
 	normal.set_border_width_all(1)
-	normal.set_corner_radius_all(6)
+	normal.set_corner_radius_all(8)
 	normal.content_margin_left = 0
 	normal.content_margin_right = 0
 	normal.content_margin_top = 0
@@ -369,11 +391,11 @@ func _estilizar_boton_control(btn: Button) -> void:
 	var hover := normal.duplicate()
 	if hover is StyleBoxFlat:
 		(hover as StyleBoxFlat).bg_color = _COLOR_BOTON_HOVER
-		(hover as StyleBoxFlat).border_color = Color(0.2, 0.2, 0.2, 1)
+		(hover as StyleBoxFlat).border_color = Color(0.42, 0.42, 0.42, 1.0)
 	var pressed := normal.duplicate()
 	if pressed is StyleBoxFlat:
 		(pressed as StyleBoxFlat).bg_color = _COLOR_BOTON_PRESSED
-		(pressed as StyleBoxFlat).border_color = Color(0.1, 0.1, 0.1, 1)
+		(pressed as StyleBoxFlat).border_color = Color(0.30, 0.30, 0.30, 1.0)
 
 	btn.add_theme_stylebox_override("normal", normal)
 	btn.add_theme_stylebox_override("hover", hover)
