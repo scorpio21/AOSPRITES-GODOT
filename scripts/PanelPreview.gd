@@ -9,6 +9,11 @@ extends PanelContainer
 @onready var btn_down: Button  = $OffsetControls/HBox/BtnDown
 @onready var btn_left: Button  = $OffsetControls/HBox/BtnLeft
 @onready var btn_right: Button = $OffsetControls/HBox/BtnRight
+@onready var btn_center: Button = $OffsetControls/HBoxSnap/BtnCenter
+@onready var btn_snap_grid: Button = $OffsetControls/HBoxSnap/BtnSnapGrid
+@onready var btn_copy_offset: Button = $OffsetControls/HBoxSnap/BtnCopyOffset
+@onready var btn_align_dirs: Button = $OffsetControls/HBoxSnap/BtnAlignDirs
+@onready var overlay: ColorRect = $Overlay
 
 var _main_ui: Node = null
 var _data: Node = null
@@ -19,6 +24,10 @@ var _anim_rects: Dictionary = {}     # dir → TextureRect (canvas animado)
 var _frame_containers: Dictionary = {} # dir → HFlowContainer con frame items
 var _frame_items: Dictionary = {}    # dir → Array de {rect, label, id}
 var _btn_plays: Dictionary = {}      # dir → Button ⏸️
+
+# Overlay de selección
+var _overlay_rect: Rect2 = Rect2()
+var _overlay_visible: bool = false
 
 const _COLOR_BOTON_NORMAL := Color(0.235294, 0.239216, 0.235294, 1.0) # #3C3D3C
 const _COLOR_BOTON_HOVER := Color(0.203922, 0.203922, 0.203922, 1.0)  # #343434
@@ -47,8 +56,23 @@ func _ready() -> void:
 			btn_left.pressed.connect(func(): _main_ui.solicitar_modificar_offset(1, 0))
 		if btn_right:
 			btn_right.pressed.connect(func(): _main_ui.solicitar_modificar_offset(-1, 0))
+		# Botones de snap/alineado
+		if btn_center:
+			btn_center.pressed.connect(_on_btn_center)
+		if btn_snap_grid:
+			btn_snap_grid.pressed.connect(_on_btn_snap_grid)
+		if btn_copy_offset:
+			btn_copy_offset.pressed.connect(_on_btn_copy_offset)
+		if btn_align_dirs:
+			btn_align_dirs.pressed.connect(_on_btn_align_dirs)
 	_construir_filas()
 	_recolocar_offset_controls_si_hace_falta()
+	if overlay:
+		overlay.hide()
+		_overlay_visible = false
+	# Conectar draw del overlay
+	if overlay and not overlay.draw.is_connected(_on_overlay_draw):
+		overlay.draw.connect(_on_overlay_draw)
 
 
 func _recolocar_offset_controls_si_hace_falta() -> void:
@@ -320,6 +344,10 @@ func limpiar() -> void:
 			var lbl := rect.get_parent().get_node_or_null("FrameLbl") if rect else null
 			if lbl:
 				lbl.text = ""
+	# Ocultar overlay
+	if overlay:
+		overlay.hide()
+		_overlay_visible = false
 
 func _crear_frame_item(dir: String, frame_id: int, flow: HFlowContainer) -> void:
 	var item := PanelContainer.new()
@@ -469,20 +497,18 @@ func _aplicar_hover(item: Control, activo: bool) -> void:
 
 # ── Seleccionar un frame ──────────────────────────────────
 func _seleccionar_frame(frame_id: int, item: Control) -> void:
-	if not item or not is_instance_valid(item):
-		return
-	# Quitar selección anterior
-	_limpiar_seleccion()
 	if not _data:
 		return
 	_data.selected_grh_id = frame_id
-
+	_limpiar_seleccion()
 	item.add_theme_stylebox_override("panel", _estilo_seleccionado())
 	var inline: Control = item.find_child("OffsetInline", true, false)
 	if inline and is_instance_valid(inline):
 		inline.visible = true
 		if _logger:
 			_logger.call("log_msg", "PanelPreview: seleccionado frame Grh" + str(frame_id) + ", OffsetInline visible")
+	# Actualizar overlay
+	_actualizar_overlay(item)
 
 func _limpiar_seleccion() -> void:
 	for dir in _frame_items:
@@ -598,3 +624,113 @@ func _step_frame(dir: String, delta: int) -> void:
 			if entry["id"] == frame_id:
 				_seleccionar_frame(frame_id, entry["item"])
 				break
+
+# ── Overlay de selección ───────────────────────────────────
+func _actualizar_overlay(item: Control) -> void:
+	if not overlay or not item:
+		return
+	var rect_texture: TextureRect = item.find_child("TextureRect", true, false)
+	if not rect_texture or not rect_texture.texture:
+		overlay.hide()
+		_overlay_visible = false
+		return
+	# Obtener rectángulo global del frame
+	var global_rect := rect_texture.get_global_rect()
+	var local_rect := overlay.get_global_transform().affine_inverse() * global_rect
+	_overlay_rect = Rect2(local_rect.position, local_rect.size)
+	overlay.position = _overlay_rect.position
+	overlay.size = _overlay_rect.size
+	overlay.color = Color.TRANSPARENT
+	overlay.show()
+	_overlay_visible = true
+	# Forzar redibujado del overlay con crosshair y borde
+	overlay.queue_redraw()
+
+func _on_overlay_draw() -> void:
+	if not _overlay_visible or _overlay_rect.size.x <= 0 or _overlay_rect.size.y <= 0:
+		return
+	# Dibujar borde de selección
+	var border_color := Color.YELLOW
+	var border_width := 2.0
+	overlay.draw_rect(_overlay_rect, border_color, false, border_width)
+	# Dibujar crosshair del pivot (centro del frame)
+	var center := _overlay_rect.size / 2.0
+	var cross_color := Color.CYAN
+	var cross_len := 8.0
+	var cross_width := 1.0
+	overlay.draw_line(Vector2(center.x - cross_len, center.y), Vector2(center.x + cross_len, center.y), cross_color, cross_width)
+	overlay.draw_line(Vector2(center.x, center.y - cross_len), Vector2(center.x, center.y + cross_len), cross_color, cross_width)
+
+# ── Botones de snap/alineado ─────────────────────────────────
+func _on_btn_center() -> void:
+	if not _data or _data.selected_grh_id < 0:
+		return
+	var grh: Dictionary = _data.grh_data.get(_data.selected_grh_id, {})
+	if grh.get("type", 0) != 1:
+		return
+	# Centrar offset en 0,0
+	grh["x"] = 0
+	grh["y"] = 0
+	redibujar_frames()
+	if _logger:
+		_logger.call("log_msg", "PanelPreview: centrado offset Grh" + str(_data.selected_grh_id))
+
+func _on_btn_snap_grid() -> void:
+	if not _data or _data.selected_grh_id < 0:
+		return
+	var grh: Dictionary = _data.grh_data.get(_data.selected_grh_id, {})
+	if grh.get("type", 0) != 1:
+		return
+	var grid_step := 2
+	# Snap a múltiplos de 2px
+	var x := int(grh.get("x", 0))
+	var y := int(grh.get("y", 0))
+	grh["x"] = int(round(float(x) / grid_step)) * grid_step
+	grh["y"] = int(round(float(y) / grid_step)) * grid_step
+	redibujar_frames()
+	if _logger:
+		_logger.call("log_msg", "PanelPreview: snap a grilla (2px) Grh" + str(_data.selected_grh_id))
+
+func _on_btn_copy_offset() -> void:
+	if not _data or _data.selected_grh_id < 0:
+		return
+	var src_grh: Dictionary = _data.grh_data.get(_data.selected_grh_id, {})
+	if src_grh.get("type", 0) != 1:
+		return
+	var src_x := int(src_grh.get("x", 0))
+	var src_y := int(src_grh.get("y", 0))
+	# Copiar a todos los frames estáticos
+	var count := 0
+	for id in _data.grh_data.keys():
+		var g: Dictionary = _data.grh_data.get(id, {})
+		if g.get("type", 0) == 1:
+			g["x"] = src_x
+			g["y"] = src_y
+			count += 1
+	redibujar_frames()
+	if _logger:
+		_logger.call("log_msg", "PanelPreview: copiado offset a %d frames estáticos" % count)
+
+func _on_btn_align_dirs() -> void:
+	if not _data or _data.selected_grh_id < 0:
+		return
+	var src_grh: Dictionary = _data.grh_data.get(_data.selected_grh_id, {})
+	if src_grh.get("type", 0) != 1:
+		return
+	var src_x := int(src_grh.get("x", 0))
+	var src_y := int(src_grh.get("y", 0))
+	# Alinear todas las direcciones al mismo offset base
+	var count := 0
+	for dir in _data.dir_order:
+		var anim_grh_id: int = _data.anim_grhs.get(dir, 0)
+		var anim_data: Dictionary = _data.grh_data.get(anim_grh_id, {})
+		if anim_data.get("type", 0) == 2:
+			for frame_id in anim_data["frames"]:
+				var g: Dictionary = _data.grh_data.get(frame_id, {})
+				if g.get("type", 0) == 1:
+					g["x"] = src_x
+					g["y"] = src_y
+					count += 1
+	redibujar_frames()
+	if _logger:
+		_logger.call("log_msg", "PanelPreview: alineado %d frames de animación" % count)

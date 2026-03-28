@@ -64,3 +64,27 @@ text = "↓ Abajo"
 [node name="BtnRight" type="Button" parent="OffsetControls/HBox" unique_id=584153264]
 layout_mode = 2
 text = "→ Der"
+
+[node name="HBoxSnap" type="HBoxContainer" parent="OffsetControls" unique_id=9999999991]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BtnCenter" type="Button" parent="OffsetControls/HBoxSnap" unique_id=9999999992]
+layout_mode = 2
+text = "Centrar"
+
+[node name="BtnSnapGrid" type="Button" parent="OffsetControls/HBoxSnap" unique_id=9999999993]
+layout_mode = 2
+text = "Snap"
+
+[node name="BtnCopyOffset" type="Button" parent="OffsetControls/HBoxSnap" unique_id=9999999994]
+layout_mode = 2
+text = "Copiar"
+
+[node name="BtnAlignDirs" type="Button" parent="OffsetControls/HBoxSnap" unique_id=9999999995]
+layout_mode = 2
+text = "Alinear"
+
+[node name="Overlay" type="ColorRect" parent="." unique_id=9999999996]
+mouse_filter = 2
+color = Color(1, 1, 1, 0)

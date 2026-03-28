@@ -13,7 +13,8 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 - 🎨 Eliminación de fondo con tolerancia por color
 - 🖼️ Previsualización animada de las 4 direcciones (Abajo, Arriba, Izquierda, Derecha)
 - 🖱️ Edición de offset por frame con clic y/o teclas de flecha
-- 📝 Generación de código fuente (texto) compatible con `Graficos.ini` y `Cuerpos.ini` de AO
+- � Overlay de selección y herramientas de snap/alineado (Centrar, Snap 2px, Copiar offset, Alinear direcciones)
+- �📝 Generación de código fuente (texto) compatible con `Graficos.ini` y `Cuerpos.ini` de AO
 - 🧹 Botón **Limpiar** para resetear la carga/estado
 - Descarga de imagen procesada en PNG o BMP
 - 🗒️ Pestaña de **Notas** para recordatorios del sprite

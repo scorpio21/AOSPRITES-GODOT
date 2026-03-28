@@ -25,6 +25,12 @@ const _INSTRUCCIONES_BB := """
 • Usa [b]Flechas del teclado[/b] (↑↓←→) para ajustar el offset X,Y
 • Usa los botones de reproducción para ver la animación
 • El contador muestra frame/total superpuesto en rojo
+• Overlay amarillo y crosshair cian sobre el frame seleccionado
+• Botones de snap/alineado:
+  – [b]Centrar[/b]: offset X=0, Y=0
+  – [b]Snap[/b]: redondea a múltiplos de 2px
+  – [b]Copiar[/b]: copia el offset a todos los frames estáticos
+  – [b]Alinear[/b]: aplica el mismo offset a todas las direcciones
 
 [b]4. Código Generado[/b]
 • Edita manualmente las líneas Grh en el panel izquierdo
