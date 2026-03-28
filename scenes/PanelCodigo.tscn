@@ -54,10 +54,10 @@ layout_mode = 2
 text = "Copiar Graficos.ini"
 
 [node name="BtnExportarInd" type="Button" parent="Margin/VBox/HBox/VBoxGrh" unique_id=1570810619]
-visible = false
+visible = true
 layout_mode = 2
 tooltip_text = "Exporta el archivo Graficos.ind en formato binario compatible con el cliente AO. Usa Integer o Long según la configuración en Ajustes."
-disabled = true
+disabled = false
 text = "Exportar .ind (Binario)"
 
 [node name="GrhEdit" type="TextEdit" parent="Margin/VBox/HBox/VBoxGrh" unique_id=215214381]

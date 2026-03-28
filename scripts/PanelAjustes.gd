@@ -29,12 +29,10 @@ func _ready() -> void:
 	spin_speed.value    = cfg["speed"]
 	spin_zoom.value     = cfg["zoom"]
 	check_grid.button_pressed = cfg["show_grid"]
-	# Exportación .ind desactivada temporalmente: ocultar y forzar grh_long=false
 	if check_grh_long:
-		check_grh_long.button_pressed = false
-		check_grh_long.disabled = true
-		check_grh_long.visible = false
-	cfg["grh_long"] = false
+		check_grh_long.disabled = false
+		check_grh_long.visible = true
+		check_grh_long.button_pressed = bool(cfg.get("grh_long", false))
 	spin_hox.value      = cfg["hox"]
 	spin_hoy.value      = cfg["hoy"]
 
@@ -46,7 +44,13 @@ func _ready() -> void:
 	for ctrl in [spin_speed, spin_zoom, spin_hox, spin_hoy]:
 		ctrl.value_changed.connect(func(_v): _actualizar(false))
 	check_grid.toggled.connect(func(_v): _actualizar(false))
-	# check_grh_long desactivado temporalmente
+	if check_grh_long:
+		if not check_grh_long.toggled.is_connected(_on_check_grh_long_toggled):
+			check_grh_long.toggled.connect(_on_check_grh_long_toggled)
+
+
+func _on_check_grh_long_toggled(_v: bool) -> void:
+	_actualizar(false)
 
 func _actualizar(regenerar: bool) -> void:
 	if not _data:
@@ -58,7 +62,7 @@ func _actualizar(regenerar: bool) -> void:
 	cfg["speed"]    = int(spin_speed.value)
 	cfg["zoom"]     = spin_zoom.value
 	cfg["show_grid"]= check_grid.button_pressed
-	cfg["grh_long"] = false
+	cfg["grh_long"] = check_grh_long.button_pressed if check_grh_long else false
 	cfg["hox"]      = int(spin_hox.value)
 	cfg["hoy"]      = int(spin_hoy.value)
 	config_cambiada.emit(regenerar)

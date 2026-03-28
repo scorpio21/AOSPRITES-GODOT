@@ -23,8 +23,16 @@ signal exportar_ind_solicitado(ruta: String)
 
 var _ultima_ruta_grh: String = ""
 var _ultima_ruta_body: String = ""
+var _ultima_carpeta: String = ""
+
+const _CONFIG_RUTA: String = "user://aosprites_local.cfg"
+const _CONFIG_SECCION_UI: String = "ui"
+const _CONFIG_KEY_ULTIMA_CARPETA: String = "ultima_carpeta"
 
 func _ready() -> void:
+	_cargar_config_local()
+	_aplicar_carpeta_a_dialogos()
+
 	grh_edit.text_changed.connect(_on_grh_editado)
 	body_edit.editable = false
 	if btn_guardar_grh:
@@ -40,8 +48,10 @@ func _ready() -> void:
 	if btn_copiar_body:
 		btn_copiar_body.pressed.connect(_on_btn_copiar_body)
 	if btn_exportar_ind:
-		btn_exportar_ind.disabled = true
-		btn_exportar_ind.visible = false
+		btn_exportar_ind.disabled = false
+		btn_exportar_ind.visible = true
+		if not btn_exportar_ind.pressed.is_connected(_on_btn_exportar_ind):
+			btn_exportar_ind.pressed.connect(_on_btn_exportar_ind)
 	if dialog_guardar_grh and not dialog_guardar_grh.file_selected.is_connected(_on_guardar_grh_file_selected):
 		dialog_guardar_grh.file_selected.connect(_on_guardar_grh_file_selected)
 	if dialog_guardar_body and not dialog_guardar_body.file_selected.is_connected(_on_guardar_body_file_selected):
@@ -68,10 +78,18 @@ func _on_btn_copiar_body() -> void:
 	mostrar_info("Cuerpos.ini copiado al portapapeles")
 
 func _on_btn_exportar_ind() -> void:
-	mostrar_info("Exportación .ind binaria desactivada temporalmente")
+	limpiar_error()
+	if not dialog_guardar_ind:
+		return
+	_aplicar_carpeta_a_dialogos()
+	dialog_guardar_ind.current_file = "Graficos.ind"
+	dialog_guardar_ind.popup_centered()
 
 func _on_guardar_ind_file_selected(path: String) -> void:
-	mostrar_info("Exportación .ind binaria desactivada temporalmente")
+	if path.strip_edges() == "":
+		return
+	_guardar_ultima_carpeta(path)
+	exportar_ind_solicitado.emit(path)
 
 func get_grh_text() -> String:
 	return grh_edit.text
@@ -88,6 +106,7 @@ func _on_btn_guardar_grh() -> void:
 	limpiar_error()
 	if not dialog_guardar_grh:
 		return
+	_aplicar_carpeta_a_dialogos()
 	dialog_guardar_grh.current_file = "Graficos.ini"
 	dialog_guardar_grh.popup_centered()
 
@@ -95,16 +114,53 @@ func _on_btn_guardar_body() -> void:
 	limpiar_error()
 	if not dialog_guardar_body:
 		return
+	_aplicar_carpeta_a_dialogos()
 	dialog_guardar_body.current_file = "Cuerpos.ini"
 	dialog_guardar_body.popup_centered()
 
 func _on_guardar_grh_file_selected(path: String) -> void:
 	_ultima_ruta_grh = path
+	_guardar_ultima_carpeta(path)
 	_guardar_texto_en_archivo(path, grh_edit.text)
 
 func _on_guardar_body_file_selected(path: String) -> void:
 	_ultima_ruta_body = path
+	_guardar_ultima_carpeta(path)
 	_guardar_texto_en_archivo(path, body_edit.text)
+
+
+func _guardar_ultima_carpeta(path: String) -> void:
+	var carpeta := path.get_base_dir()
+	if carpeta.strip_edges() == "":
+		return
+	_ultima_carpeta = carpeta
+	_guardar_config_local()
+
+
+func _aplicar_carpeta_a_dialogos() -> void:
+	if _ultima_carpeta.strip_edges() == "":
+		return
+	if dialog_guardar_grh:
+		dialog_guardar_grh.current_dir = _ultima_carpeta
+	if dialog_guardar_body:
+		dialog_guardar_body.current_dir = _ultima_carpeta
+	if dialog_guardar_ind:
+		dialog_guardar_ind.current_dir = _ultima_carpeta
+
+
+func _cargar_config_local() -> void:
+	var cfg := ConfigFile.new()
+	var err := cfg.load(_CONFIG_RUTA)
+	if err != OK:
+		return
+	_ultima_carpeta = str(cfg.get_value(_CONFIG_SECCION_UI, _CONFIG_KEY_ULTIMA_CARPETA, ""))
+
+
+func _guardar_config_local() -> void:
+	var cfg := ConfigFile.new()
+	var _err_load := cfg.load(_CONFIG_RUTA)
+	cfg.set_value(_CONFIG_SECCION_UI, _CONFIG_KEY_ULTIMA_CARPETA, _ultima_carpeta)
+	cfg.save(_CONFIG_RUTA)
 
 func guardar_grh_rapido_o_dialogo() -> void:
 	limpiar_error()

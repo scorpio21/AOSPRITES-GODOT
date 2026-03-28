@@ -129,8 +129,8 @@ size_flags_horizontal = 3
 text = "Usar Grh Long (4 bytes para .ind)"
 button_pressed = false
 tooltip_text = "Si activado, usa 4 bytes para IDs de Grh (Long). Si desactivado, usa 2 bytes (Integer). Depende del cliente AO."
- disabled = true
- visible = false
+ disabled = false
+ visible = true
 
 [node name="Spacer" type="Control" parent="Margin/VBox/GridTop/FilaConfig2"]
 layout_mode = 2

@@ -19,10 +19,10 @@ func generar_graficos_ind(grh_data: Dictionary, max_grh: int, output_path: Strin
 		resultado["error"] = "No se pudo crear archivo: " + output_path
 		return resultado
 	
-	# 5 enteros vacíos al inicio (reservados)
-	var temp_int: int = 0
-	for i in range(5):
-		file.store_16(temp_int)
+	# Cabecera reservada (GESE salta 273 bytes)
+	var cabecera := PackedByteArray()
+	cabecera.resize(273)
+	file.store_buffer(cabecera)
 	
 	var cantidad_escritos: int = 0
 	
@@ -58,11 +58,12 @@ func generar_graficos_ind(grh_data: Dictionary, max_grh: int, output_path: Strin
 				else:
 					file.store_16(int(frame_id))
 			
-			# Escribir velocidad (Single = 4 bytes float)
+			# Escribir velocidad como short (2 bytes) en compatibilidad con GESE
 			var speed: float = float(entry.get("speed", 1.0))
-			if speed <= 0:
-				speed = 1.0
-			file.store_float(speed)
+			var speed_short: int = int(round(speed))
+			if speed_short <= 0:
+				speed_short = 1
+			file.store_16(speed_short)
 			
 		else:
 			# Es un Grh estático (NumFrames = 1)
@@ -131,14 +132,12 @@ func leer_graficos_ind(input_path: String) -> Dictionary:
 		resultado["error"] = "No se pudo abrir archivo: " + input_path
 		return resultado
 	
-	# Saltar cabecera opcional y 5 enteros reservados
-	if not no_usar_cabecera:
-		# Leer MiCabecera (estructura desconocida, saltar)
-		pass
-	
-	# Saltar 5 enteros reservados
-	for i in range(5):
-		file.get_16()
+	# Saltar cabecera reservada (GESE salta 273 bytes)
+	if file.get_length() < 273:
+		file.close()
+		resultado["error"] = "Archivo .ind demasiado corto (sin cabecera completa): " + input_path
+		return resultado
+	file.seek(273)
 	
 	var grh_data: Dictionary = {}
 	var max_grh: int = 0
@@ -168,7 +167,7 @@ func leer_graficos_ind(input_path: String) -> Dictionary:
 				else:
 					frames.append(file.get_16())
 			entry["frames"] = frames
-			entry["speed"] = file.get_float()
+			entry["speed"] = float(file.get_16())
 		else:
 			# Estático
 			entry["file"] = file.get_16()

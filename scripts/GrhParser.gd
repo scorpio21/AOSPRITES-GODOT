@@ -12,17 +12,21 @@ static func parse(texto: String) -> Dictionary:
 	var resultado: Dictionary = {}
 	var lineas := texto.split("\n")
 	var regex := RegEx.new()
-	regex.compile(r"(?i)^Grh(\d+)=(.+)$")
+	regex.compile(r"(?i)^\s*Grh\s*(\d+)\s*=\s*(.+)\s*$")
 
 	for i in lineas.size():
-		var linea := lineas[i].split("'")[0].strip_edges()
+		var linea_original := lineas[i]
+		var linea := linea_original.replace("\t", " ")
+		linea = linea.split("'")[0]
+		linea = linea.split(";")[0]
+		linea = linea.strip_edges()
 		if linea.is_empty():
 			continue
 
 		var match := regex.search(linea)
 		if match:
 			var id := int(match.get_string(1))
-			var raw_valor := match.get_string(2)
+			var raw_valor := match.get_string(2).strip_edges()
 
 			# Parsear partes respetando guiones negativos
 			var partes := _split_partes(raw_valor)
@@ -162,13 +166,56 @@ static func sync_grh_line(texto: String, grh_id: int, g: Dictionary) -> String:
 # --------------------------------------------------------
 static func _split_partes(valor: String) -> Array:
 	var partes: Array = []
-	var raw := valor.split("-")
+	var raw := valor.replace("\t", " ").split("-")
 	var i := 0
 	while i < raw.size():
-		if raw[i].is_empty() and i + 1 < raw.size():
-			partes.append("-" + raw[i + 1])
+		var actual := raw[i].strip_edges()
+		if actual.is_empty() and i + 1 < raw.size():
+			partes.append("-" + raw[i + 1].strip_edges())
 			i += 2
 		else:
-			partes.append(raw[i])
+			partes.append(actual)
 			i += 1
 	return partes
+
+
+static func validar_semantica(grh_data: Dictionary, config: Dictionary, img: Image) -> Array[String]:
+	var avisos: Array[String] = []
+	var w_cfg: int = int(config.get("w", 0))
+	var h_cfg: int = int(config.get("h", 0))
+	var img_w: int = img.get_width() if img else 0
+	var img_h: int = img.get_height() if img else 0
+
+	# Validar animaciones: frames deben existir y ser estáticos
+	for grh_id in grh_data.keys():
+		var entry: Dictionary = grh_data.get(grh_id, {})
+		if int(entry.get("type", 0)) != 2:
+			continue
+		var frames: Array = entry.get("frames", [])
+		for f in frames:
+			var fid: int = int(f)
+			var fr: Dictionary = grh_data.get(fid, {})
+			if fr.is_empty():
+				avisos.append("Animación Grh%d: frame Grh%d no existe" % [int(grh_id), fid])
+				continue
+			if int(fr.get("type", 0)) != 1:
+				avisos.append("Animación Grh%d: frame Grh%d no es estático" % [int(grh_id), fid])
+
+	# Validar estáticos: límites y tamaños
+	for grh_id in grh_data.keys():
+		var entry: Dictionary = grh_data.get(grh_id, {})
+		if int(entry.get("type", 0)) != 1:
+			continue
+		var x: int = int(entry.get("x", 0))
+		var y: int = int(entry.get("y", 0))
+		var w: int = int(entry.get("w", 0))
+		var h: int = int(entry.get("h", 0))
+		if w_cfg > 0 and h_cfg > 0 and (w != w_cfg or h != h_cfg):
+			avisos.append("Grh%d: tamaño %dx%d difiere de config %dx%d" % [int(grh_id), w, h, w_cfg, h_cfg])
+		if img and img_w > 0 and img_h > 0:
+			if x < 0 or y < 0:
+				avisos.append("Grh%d: x/y negativo (%d,%d)" % [int(grh_id), x, y])
+			elif x + w > img_w or y + h > img_h:
+				avisos.append("Grh%d: rect fuera de imagen (%d,%d,%d,%d) img=%dx%d" % [int(grh_id), x, y, w, h, img_w, img_h])
+
+	return avisos

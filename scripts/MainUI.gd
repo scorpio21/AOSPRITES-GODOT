@@ -33,6 +33,23 @@ var _fire_material: ShaderMaterial = null
 var _tab_bar: TabBar = null
 var _ultimo_tab_hover: int = -1
 
+const _TAB_SONIDO_RUTA: String = "res://assets/sonidos/click.wav"
+const _FUEGO_PADDING_X: float = 2.0
+const _FUEGO_PADDING_Y: float = 2.0
+const _FUEGO_FADE_IN: float = 0.09
+const _FUEGO_PAUSA: float = 0.22
+const _FUEGO_FADE_OUT: float = 0.42
+
+# Colores de llama por índice de solapa: [color_base, color_alto]
+var _FUEGO_COLORES: Array = [
+	[Color(1.0, 0.25, 0.05, 1.0), Color(1.0, 0.85, 0.15, 1.0)],   # 0: Naranja/Fuego
+	[Color(0.05, 0.4, 1.0, 1.0), Color(0.3, 0.8, 1.0, 1.0)],       # 1: Azul/Hielo
+	[Color(0.1, 0.7, 0.2, 1.0), Color(0.4, 1.0, 0.3, 1.0)],        # 2: Verde/Naturaleza
+	[Color(0.6, 0.1, 0.8, 1.0), Color(0.9, 0.4, 1.0, 1.0)]         # 3: Púrpura/Místico
+]
+
+var _tab_sonido_player: AudioStreamPlayer = null
+
 func _ready() -> void:
 	# Failsafe: Imprimir a consola nativa primero
 	print("!!! MainUI: _ready() START !!!")
@@ -93,6 +110,8 @@ func _ready() -> void:
 	if tabs:
 		if not tabs.tab_changed.is_connected(_on_tab_changed):
 			tabs.tab_changed.connect(_on_tab_changed)
+		if not tabs.resized.is_connected(_on_tabs_resized):
+			tabs.resized.connect(_on_tabs_resized)
 		_inicializar_overlay_fuego()
 		_inicializar_tabbar_hover()
 	
@@ -347,10 +366,20 @@ func on_config_cambiada(regenerar: bool) -> void:
 				faltantes.append(str(dir))
 
 		var msg_ok := "Aplicado OK: %d Grhs estáticos, %d animaciones" % [count_estaticos, count_anims]
+		var avisos: Array[String] = GrhParser.validar_semantica(data.grh_data, data.config, data.sprite_image)
+		var avisos_str := ""
+		if avisos.size() > 0:
+			var max_mostrar: int = int(min(3, avisos.size()))
+			avisos_str = " | Avisos: " + " | ".join(avisos.slice(0, max_mostrar))
+			if avisos.size() > max_mostrar:
+				avisos_str += " | (+" + str(avisos.size() - max_mostrar) + ")"
 		if faltantes.size() > 0:
-			panel_codigo.mostrar_info(msg_ok + " | Faltan animaciones: " + ", ".join(faltantes))
+			panel_codigo.mostrar_info(msg_ok + " | Faltan animaciones: " + ", ".join(faltantes) + avisos_str)
 		else:
-			panel_codigo.mostrar_ok(msg_ok)
+			if avisos.size() > 0:
+				panel_codigo.mostrar_info(msg_ok + avisos_str)
+			else:
+				panel_codigo.mostrar_ok(msg_ok)
 
 		var min_grh_id := 0
 		for k in data.grh_data.keys():
@@ -465,6 +494,7 @@ shader_type canvas_item;
 
 uniform float intensidad : hint_range(0.0, 2.0) = 1.0;
 uniform float velocidad : hint_range(0.0, 5.0) = 1.2;
+uniform float transparencia : hint_range(0.0, 1.0) = 0.55;
 uniform vec4 color_base : source_color = vec4(1.0, 0.25, 0.05, 1.0);
 uniform vec4 color_alto : source_color = vec4(1.0, 0.85, 0.15, 1.0);
 
@@ -516,33 +546,59 @@ void fragment() {
 	// Color según altura
 	vec4 col = mix(color_base, color_alto, pow(base, 0.35));
 
-	COLOR = vec4(col.rgb, mask);
+	COLOR = vec4(col.rgb, mask * transparencia);
 }
 """
 
 	_fire_material = ShaderMaterial.new()
 	_fire_material.shader = shader
 	_fire_overlay.material = _fire_material
+	_inicializar_sonido_tabs()
 
-func _actualizar_rect_overlay_para_contenido_tabs() -> void:
+func _inicializar_sonido_tabs() -> void:
+	if _tab_sonido_player:
+		return
+	_tab_sonido_player = AudioStreamPlayer.new()
+	_tab_sonido_player.name = "TabClipSound"
+	_tab_sonido_player.bus = "UI"
+	if _TAB_SONIDO_RUTA != "":
+		var stream := load(_TAB_SONIDO_RUTA)
+		if stream is AudioStream:
+			_tab_sonido_player.stream = stream
+	add_child(_tab_sonido_player)
+
+func _reproducir_sonido_tabs() -> void:
+	if not _tab_sonido_player:
+		return
+	if not _tab_sonido_player.stream:
+		return
+	_tab_sonido_player.play()
+
+
+func _actualizar_rect_overlay_para_tab(tab_index: int) -> void:
 	if not tabs or not _fire_overlay:
 		return
-	
-	# Rectángulos globales
-	var tabs_global: Rect2 = tabs.get_global_rect()
-	var tab_bar_global: Rect2 = Rect2()
-	if _tab_bar:
-		tab_bar_global = _tab_bar.get_global_rect()
-	
-	# Calcular el área de contenido: debajo del TabBar, dentro del TabContainer
-	# La Y de inicio es la parte inferior del TabBar
-	var contenido_y: float = tab_bar_global.position.y + tab_bar_global.size.y
-	
-	# La altura es desde esa Y hasta el final del TabContainer
-	var contenido_altura: float = (tabs_global.position.y + tabs_global.size.y) - contenido_y
-	
-	# Asegurar valores no negativos
-	contenido_altura = max(contenido_altura, 0.0)
+	if not _tab_bar:
+		_tab_bar = tabs.get_tab_bar()
+	if not _tab_bar:
+		return
+	if tab_index < 0 or tab_index >= _tab_bar.tab_count:
+		return
+	var tab_bar_global: Rect2 = _tab_bar.get_global_rect()
+	if tab_bar_global.size.x <= 0.0 or tab_bar_global.size.y <= 0.0:
+		return
+	var tab_local: Rect2 = _tab_bar.get_tab_rect(tab_index)
+	if tab_local.size.x <= 0.0 or tab_local.size.y <= 0.0:
+		return
+	var tab_global := Rect2(tab_bar_global.position + tab_local.position, tab_local.size)
+	var tab_expandida := Rect2(
+		tab_global.position - Vector2(_FUEGO_PADDING_X, _FUEGO_PADDING_Y),
+		tab_global.size + Vector2(_FUEGO_PADDING_X * 2.0, _FUEGO_PADDING_Y * 2.0)
+	)
+	var tabbar_limite := tab_bar_global
+	var rect_final := tab_expandida.intersection(tabbar_limite)
+	if rect_final.size.x <= 0.0 or rect_final.size.y <= 0.0:
+		rect_final = tab_global
 	
 	# Resetear anchors para usar posición y tamaño absolutos
 	_fire_overlay.anchor_left = 0.0
@@ -554,12 +610,15 @@ func _actualizar_rect_overlay_para_contenido_tabs() -> void:
 	_fire_overlay.offset_right = 0.0
 	_fire_overlay.offset_bottom = 0.0
 	
-	# Aplicar posición y tamaño globales
-	_fire_overlay.global_position = Vector2(tabs_global.position.x, contenido_y)
-	_fire_overlay.size = Vector2(tabs_global.size.x, contenido_altura)
-	
-	print("DEBUG FireOverlay: pos=", _fire_overlay.global_position, " size=", _fire_overlay.size)
-	print("DEBUG tabs=", tabs_global, " tab_bar=", tab_bar_global)
+	# Aplicar posición y tamaño globales (solo la solapa)
+	_fire_overlay.global_position = rect_final.position
+	_fire_overlay.size = rect_final.size
+
+func _actualizar_rect_overlay_para_contenido_tabs() -> void:
+	# Mantener compatibilidad con llamadas existentes: usar la solapa actual
+	if not tabs:
+		return
+	_actualizar_rect_overlay_para_tab(tabs.current_tab)
 
 func _disparar_overlay_fuego() -> void:
 	if not _fire_overlay:
@@ -570,12 +629,23 @@ func _disparar_overlay_fuego() -> void:
 		_fire_material.set_shader_parameter("intensidad", 1.0)
 		_fire_material.set_shader_parameter("velocidad", 1.2)
 	var tween := create_tween()
-	tween.tween_property(_fire_overlay, "modulate:a", 1.0, 0.08)
-	tween.tween_property(_fire_overlay, "modulate:a", 0.0, 0.24)
+	tween.tween_property(_fire_overlay, "modulate:a", 1.0, _FUEGO_FADE_IN)
+	tween.tween_interval(_FUEGO_PAUSA)
+	tween.tween_property(_fire_overlay, "modulate:a", 0.0, _FUEGO_FADE_OUT)
 	tween.tween_callback(func():
 		if _fire_overlay:
 			_fire_overlay.visible = false
 	)
+
+func _aplicar_colores_fuego(tab_index: int) -> void:
+	if not _fire_material:
+		return
+	var idx := tab_index
+	if idx < 0 or idx >= _FUEGO_COLORES.size():
+		idx = 0
+	var colores: Array = _FUEGO_COLORES[idx]
+	_fire_material.set_shader_parameter("color_base", colores[0])
+	_fire_material.set_shader_parameter("color_alto", colores[1])
 
 func _on_tab_changed(_tab_index: int) -> void:
 	if not tabs:
@@ -586,9 +656,10 @@ func _on_tab_changed(_tab_index: int) -> void:
 		return
 	if not _fire_overlay:
 		_inicializar_overlay_fuego()
-	# Efecto de fuego desactivado temporalmente (posicionamiento no funciona correctamente)
-	# call_deferred("_actualizar_rect_overlay_para_contenido_tabs")
-	# call_deferred("_disparar_overlay_fuego")
+	_reproducir_sonido_tabs()
+	_aplicar_colores_fuego(_tab_index)
+	call_deferred("_actualizar_rect_overlay_para_tab", _tab_index)
+	call_deferred("_disparar_overlay_fuego")
 	
 	# Aplicar efecto de fade in
 	var tween := create_tween()
@@ -606,6 +677,11 @@ func _inicializar_tabbar_hover() -> void:
 		return
 	if not _tab_bar.gui_input.is_connected(_on_tabbar_gui_input):
 		_tab_bar.gui_input.connect(_on_tabbar_gui_input)
+	if not _tab_bar.mouse_exited.is_connected(_on_tabbar_mouse_exited):
+		_tab_bar.mouse_exited.connect(_on_tabbar_mouse_exited)
+
+func _on_tabbar_mouse_exited() -> void:
+	_ultimo_tab_hover = -1
 
 func _on_tabbar_gui_input(event: InputEvent) -> void:
 	if not (event is InputEventMouseMotion):
@@ -625,19 +701,24 @@ func _on_tabbar_gui_input(event: InputEvent) -> void:
 	if idx == _ultimo_tab_hover:
 		return
 	_ultimo_tab_hover = idx
-	# Efecto de fuego en hover desactivado temporalmente
-	# if tabs:
-	# 	call_deferred("_actualizar_rect_overlay_para_contenido_tabs")
-	# 	if _fire_material:
-	# 		_fire_material.set_shader_parameter("intensidad", 0.65)
-	# 	call_deferred("_disparar_overlay_fuego")
+	if tabs:
+		_reproducir_sonido_tabs()
+		_aplicar_colores_fuego(idx)
+		call_deferred("_actualizar_rect_overlay_para_tab", idx)
+		if _fire_material:
+			_fire_material.set_shader_parameter("intensidad", 0.65)
+		call_deferred("_disparar_overlay_fuego")
+
+func _on_tabs_resized() -> void:
+	if not tabs or not _fire_overlay:
+		return
+	var idx := _ultimo_tab_hover
+	if idx < 0:
+		idx = tabs.current_tab
+	call_deferred("_actualizar_rect_overlay_para_tab", idx)
 
 # ── Exportar .ind (binario) ────────────────────────────────
 func _on_exportar_ind_solicitado(ruta: String) -> void:
-	if panel_codigo and panel_codigo.has_method("mostrar_info"):
-		panel_codigo.call("mostrar_info", "Exportación .ind binaria desactivada temporalmente")
-	return
-	
 	# Crear encoder y configurar según los ajustes
 	var encoder := BinaryEncoder.new()
 	encoder.usar_grh_long = data.config.get("grh_long", false)

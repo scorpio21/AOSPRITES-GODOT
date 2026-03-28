@@ -23,12 +23,19 @@ signal opciones_cambiadas
 var _imagen_procesada: Image = null
 var _nombre_base: String = ""
 var _logger: Node = null
+var _ultima_carpeta: String = ""
+
+const _CONFIG_RUTA: String = "user://aosprites_local.cfg"
+const _CONFIG_SECCION_UI: String = "ui"
+const _CONFIG_KEY_ULTIMA_CARPETA: String = "ultima_carpeta"
 
 func _ready() -> void:
 	print("!!! PanelCargar: _ready() START !!!")
 	_logger = get_node_or_null("/root/AOLogger")
 	if _logger:
 		_logger.call("log_msg", "PanelCargar: _ready() START")
+	_cargar_config_local()
+	_aplicar_carpeta_a_dialogos()
 	await get_tree().process_frame
 	
 	# Buscar debug log visual
@@ -85,6 +92,7 @@ func _abrir_selector() -> void:
 		if _logger:
 			_logger.call("log_msg", "PanelCargar: ERROR file_dialog_open es NULL")
 		return
+	_aplicar_carpeta_a_dialogos()
 	file_dialog_open.popup_centered(Vector2i(900, 600))
 
 # ── Drag & drop desde el OS (Windows Explorer) ────────────
@@ -106,6 +114,7 @@ func _on_archivos_soltados(archivos: PackedStringArray) -> void:
 func _on_archivo_seleccionado(ruta: String) -> void:
 	if _logger:
 		_logger.call("log_msg", "Cargando: '" + ruta + "'")
+	_guardar_ultima_carpeta(ruta)
 	var img := ImageProcessor.cargar_imagen(ruta)
 	if not img:
 		if _logger:
@@ -149,6 +158,7 @@ func _solicitar_guardar() -> void:
 	var ext_filter := "*.bmp ; BMP" if formato() == "bmp" else "*.png ; PNG"
 	file_dialog_save.filters = PackedStringArray([ext_filter])
 	file_dialog_save.current_file = _nombre_base + "." + formato()
+	_aplicar_carpeta_a_dialogos()
 	file_dialog_save.popup_centered(Vector2i(900, 600))
 
 func _gui_input(event: InputEvent) -> void:
@@ -159,4 +169,37 @@ func _gui_input(event: InputEvent) -> void:
 		if visual_debug: visual_debug.text = "CLICK EN PANEL OK"
 
 func _on_guardar_seleccionado(ruta: String) -> void:
+	_guardar_ultima_carpeta(ruta)
 	ImageProcessor.guardar_imagen(_imagen_procesada, ruta)
+
+
+func _guardar_ultima_carpeta(path: String) -> void:
+	var carpeta := path.get_base_dir()
+	if carpeta.strip_edges() == "":
+		return
+	_ultima_carpeta = carpeta
+	_guardar_config_local()
+
+
+func _aplicar_carpeta_a_dialogos() -> void:
+	if _ultima_carpeta.strip_edges() == "":
+		return
+	if file_dialog_open:
+		file_dialog_open.current_dir = _ultima_carpeta
+	if file_dialog_save:
+		file_dialog_save.current_dir = _ultima_carpeta
+
+
+func _cargar_config_local() -> void:
+	var cfg := ConfigFile.new()
+	var err := cfg.load(_CONFIG_RUTA)
+	if err != OK:
+		return
+	_ultima_carpeta = str(cfg.get_value(_CONFIG_SECCION_UI, _CONFIG_KEY_ULTIMA_CARPETA, ""))
+
+
+func _guardar_config_local() -> void:
+	var cfg := ConfigFile.new()
+	var _err_load := cfg.load(_CONFIG_RUTA)
+	cfg.set_value(_CONFIG_SECCION_UI, _CONFIG_KEY_ULTIMA_CARPETA, _ultima_carpeta)
+	cfg.save(_CONFIG_RUTA)

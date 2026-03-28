@@ -36,7 +36,12 @@ En la solapa **4. Código Generado** puedes pegar/editar tu indexación en `Graf
 
 Exportación binaria:
 
-- La exportación `Graficos.ind` está **desactivada temporalmente**.
+- La exportación `Graficos.ind` está **habilitada** desde la solapa **4. Código Generado**.
+- El formato binario generado es compatible con el esquema usado por clientes AO tipo GESE:
+  - Cabecera reservada de **273 bytes** al inicio.
+  - `NumFrames`, campos estáticos (`file`, `x`, `y`, `w`, `h`) y `speed` se guardan como **2 bytes**.
+  - `speed` se guarda como **short (2 bytes)** (no float).
+  - Opción **Usar Grh Long**: si está activa, los IDs (`GrhID` y `frames[]`) se guardan como **4 bytes**; si no, como **2 bytes**.
 
 Atajos y acciones rápidas:
 
