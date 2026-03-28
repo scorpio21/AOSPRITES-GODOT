@@ -11,6 +11,7 @@ extends PanelContainer
 @onready var btn_reset: Button        = $Margin/VBox/HBox/VBoxGrh/BtnReset
 @onready var btn_copiar_grh: Button   = $Margin/VBox/HBox/VBoxGrh/BtnCopiarGrh
 @onready var btn_exportar_ind: Button = $Margin/VBox/HBox/VBoxGrh/BtnExportarInd
+@onready var btn_agregar_cuerpo: Button = $Margin/VBox/HBox/VBoxGrh/BtnAgregarCuerpo
 @onready var btn_guardar_body: Button = $Margin/VBox/HBox/VBoxBody/BtnGuardarBody
 @onready var btn_copiar_body: Button  = $Margin/VBox/HBox/VBoxBody/BtnCopiarBody
 @onready var dialog_guardar_grh: FileDialog  = $DialogGuardarGrh
@@ -20,6 +21,7 @@ extends PanelContainer
 signal grh_text_cambiado
 signal reset_solicitado
 signal exportar_ind_solicitado(ruta: String)
+signal agregar_otro_cuerpo_solicitado
 
 var _ultima_ruta_grh: String = ""
 var _ultima_ruta_body: String = ""
@@ -52,6 +54,9 @@ func _ready() -> void:
 		btn_exportar_ind.visible = true
 		if not btn_exportar_ind.pressed.is_connected(_on_btn_exportar_ind):
 			btn_exportar_ind.pressed.connect(_on_btn_exportar_ind)
+	if btn_agregar_cuerpo:
+		if not btn_agregar_cuerpo.pressed.is_connected(_on_btn_agregar_cuerpo):
+			btn_agregar_cuerpo.pressed.connect(_on_btn_agregar_cuerpo)
 	if dialog_guardar_grh and not dialog_guardar_grh.file_selected.is_connected(_on_guardar_grh_file_selected):
 		dialog_guardar_grh.file_selected.connect(_on_guardar_grh_file_selected)
 	if dialog_guardar_body and not dialog_guardar_body.file_selected.is_connected(_on_guardar_body_file_selected):
@@ -84,6 +89,10 @@ func _on_btn_exportar_ind() -> void:
 	_aplicar_carpeta_a_dialogos()
 	dialog_guardar_ind.current_file = "Graficos.ind"
 	dialog_guardar_ind.popup_centered()
+
+func _on_btn_agregar_cuerpo() -> void:
+	limpiar_error()
+	agregar_otro_cuerpo_solicitado.emit()
 
 func _on_guardar_ind_file_selected(path: String) -> void:
 	if path.strip_edges() == "":

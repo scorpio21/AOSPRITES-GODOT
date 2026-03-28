@@ -37,6 +37,8 @@ const _INSTRUCCIONES_BB := """
 • Presiona [b]"Aplicar indexación"[/b] o [b]Ctrl+Enter[/b] para validar
 • Revisa el mensaje de estado: muestra conteo de Grh estáticos/animaciones
 • Si faltan animaciones por dirección, se avisa cuáles
+• Botón [b]"Agregar otro cuerpo"[/b]: activa el modo lote para cargar otro gráfico y anexar un nuevo bloque al final del Graficos.ini
+  - En modo lote, la [b]previsualización solo muestra el último cuerpo[/b] generado para evitar errores por exceso de GRH
 
 [b]Atajos de teclado:[/b]
 • Ctrl+Enter → Aplicar indexación al preview

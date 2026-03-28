@@ -13,8 +13,9 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 - 🎨 Eliminación de fondo con tolerancia por color
 - 🖼️ Previsualización animada de las 4 direcciones (Abajo, Arriba, Izquierda, Derecha)
 - 🖱️ Edición de offset por frame con clic y/o teclas de flecha
-- � Overlay de selección y herramientas de snap/alineado (Centrar, Snap 2px, Copiar offset, Alinear direcciones)
-- �📝 Generación de código fuente (texto) compatible con `Graficos.ini` y `Cuerpos.ini` de AO
+- 📐 Overlay de selección y herramientas de snap/alineado (Centrar, Snap 2px, Copiar offset, Alinear direcciones)
+- 📝 Generación de código fuente (texto) compatible con `Graficos.ini` y `Cuerpos.ini` de AO
+- 🧩 Modo lote: **Agregar otro cuerpo** (anexa múltiples bloques al mismo `Graficos.ini` y avanza `NumGrh` automáticamente; el preview muestra solo el último cuerpo)
 - 🧹 Botón **Limpiar** para resetear la carga/estado
 - Descarga de imagen procesada en PNG o BMP
 - 🗒️ Pestaña de **Notas** para recordatorios del sprite
@@ -35,6 +36,13 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 6. En la solapa de previsualización, hacer clic en un frame estático y usar los botones o flechas del teclado para ajustar el offset
 7. En la solapa **4. Código Generado**, aplicar la indexación para validar el preview y exportar/copiar los archivos
 8. (Opcional) En la solapa **5. Notas**, escribir recordatorios del sprite
+
+Modo lote (multi-cuerpos):
+
+- Genera un cuerpo normalmente.
+- En **4. Código Generado**, presiona **Agregar otro cuerpo**.
+- Carga el siguiente gráfico y se anexará un nuevo bloque al final del `Graficos.ini`.
+- Para evitar errores por exceso de GRH, la **previsualización solo renderiza el último cuerpo** generado.
 
 En la solapa **4. Código Generado** puedes pegar/editar tu indexación en `Graficos.ini (Editable)` y presionar **Aplicar indexación al preview** para verificar coordenadas (cuerpo + cabeza) y animación. También puedes usar los botones para guardar directamente `Graficos.ini` y `Cuerpos.ini`.
 

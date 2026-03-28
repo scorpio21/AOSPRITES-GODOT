@@ -60,6 +60,11 @@ tooltip_text = "Exporta el archivo Graficos.ind en formato binario compatible co
 disabled = false
 text = "Exportar .ind (Binario)"
 
+[node name="BtnAgregarCuerpo" type="Button" parent="Margin/VBox/HBox/VBoxGrh" unique_id=2026034830]
+layout_mode = 2
+tooltip_text = "Modo lote: agrega otro cuerpo, anexa un nuevo bloque al Graficos.ini y avanza NumGrh automáticamente."
+text = "Agregar otro cuerpo"
+
 [node name="GrhEdit" type="TextEdit" parent="Margin/VBox/HBox/VBoxGrh" unique_id=215214381]
 custom_minimum_size = Vector2(0, 300)
 layout_mode = 2

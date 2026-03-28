@@ -28,6 +28,11 @@ const _HELP_WINDOW_SCENE_PATH: String = "res://scenes/HelpWindow.tscn"
 var _about_window: Window = null
 var _help_window: Window = null
 
+# Modo lote: anexar múltiples cuerpos en el mismo Graficos.ini
+var _modo_lote_activo: bool = false
+var _grh_text_acumulado: String = ""
+var _grh_text_ultimo_bloque: String = ""
+
 var _fire_overlay: ColorRect = null
 var _fire_material: ShaderMaterial = null
 var _tab_bar: TabBar = null
@@ -104,6 +109,8 @@ func _ready() -> void:
 			panel_codigo.reset_solicitado.connect(_on_reset_solicitado)
 		if panel_codigo.has_signal("exportar_ind_solicitado"):
 			panel_codigo.exportar_ind_solicitado.connect(_on_exportar_ind_solicitado)
+		if panel_codigo.has_signal("agregar_otro_cuerpo_solicitado"):
+			panel_codigo.agregar_otro_cuerpo_solicitado.connect(_on_agregar_otro_cuerpo_solicitado)
 	
 	if panel_notas:
 		if panel_notas.has_signal("notas_cambiadas"):
@@ -199,6 +206,52 @@ func _actualizar_estado_statusbar() -> void:
 		partes.append("Sel: -")
 
 	lbl_estado.text = " | ".join(partes)
+
+
+func _on_agregar_otro_cuerpo_solicitado() -> void:
+	# Activar modo lote: conservar texto acumulado, pero el preview siempre será del último cuerpo.
+	if not panel_codigo or not panel_codigo.has_method("get_grh_text"):
+		return
+	_modo_lote_activo = true
+	_grh_text_acumulado = str(panel_codigo.call("get_grh_text"))
+	_grh_text_ultimo_bloque = ""
+	if panel_codigo.has_method("mostrar_info"):
+		panel_codigo.call("mostrar_info", "Modo lote: carga otro gráfico para anexar un nuevo bloque")
+	# Enviar al usuario a la pestaña de carga para seleccionar el siguiente archivo
+	if tabs:
+		var idx_cargar: int = tabs.get_tab_idx_from_control(tabs.get_node_or_null("TabCargar"))
+		if idx_cargar >= 0:
+			tabs.current_tab = idx_cargar
+
+
+func _calcular_next_grh_id_desde_texto(texto: String) -> int:
+	var t := texto
+	if t.strip_edges() == "":
+		return int(data.config.get("last_grh", 0)) + 1
+	var regex := RegEx.new()
+	regex.compile(r"(?i)\bGrh(\d+)=")
+	var max_id := 0
+	for m in regex.search_all(t):
+		var id := int(m.get_string(1))
+		if id > max_id:
+			max_id = id
+	if max_id <= 0:
+		return int(data.config.get("last_grh", 0)) + 1
+	return max_id + 1
+
+
+func _extraer_ultimo_grh_id_de_texto(texto: String) -> int:
+	var t := texto
+	if t.strip_edges() == "":
+		return int(data.config.get("last_grh", 0))
+	var regex := RegEx.new()
+	regex.compile(r"(?i)\bGrh(\d+)=")
+	var max_id := 0
+	for m in regex.search_all(t):
+		var id := int(m.get_string(1))
+		if id > max_id:
+			max_id = id
+	return max_id
 
 func _exit_tree() -> void:
 	if is_instance_valid(_about_window):
@@ -338,20 +391,56 @@ func _actualizar_velocidad(ms: int) -> void:
 
 # ── Señales del Panel de Ajustes ──────────────────────────
 func on_config_cambiada(regenerar: bool) -> void:
+	var texto_prev: String = ""
+	var texto_generado: String = ""
 	if regenerar:
+		# En modo lote, el texto se anexa y el preview queda solo con el último bloque.
+		if _modo_lote_activo:
+			texto_prev = _grh_text_acumulado
+			if texto_prev.strip_edges() == "":
+				texto_prev = str(panel_codigo.get_grh_text()) if panel_codigo and panel_codigo.has_method("get_grh_text") else ""
+			var next_id := _calcular_next_grh_id_desde_texto(texto_prev)
+			data.config["last_grh"] = next_id - 1
+			if panel_ajustes and panel_ajustes.has_method("set_last_grh_sin_emitir"):
+				panel_ajustes.call("set_last_grh_sin_emitir", int(data.config["last_grh"]))
+
 		var nombre := str(data.working_filename)
 		if not nombre.is_valid_int():
 			if panel_codigo and panel_codigo.has_method("mostrar_error"):
 				panel_codigo.call("mostrar_error", "El nombre del archivo debe ser numérico (ej: 8058.png). Actual: '" + nombre + "'")
 			return
 		var bmpnum: int = int(nombre)
-		var texto := GrhParser.generar_grh_text(data.config, data.anim_grhs, bmpnum)
-		panel_codigo.set_grh_text(texto)
+		texto_generado = GrhParser.generar_grh_text(data.config, data.anim_grhs, bmpnum)
+		if _modo_lote_activo:
+			_grh_text_ultimo_bloque = texto_generado
+		if _modo_lote_activo:
+			var sep := "\n'-------- cuerpo --------\n"
+			if texto_prev.strip_edges() == "":
+				_grh_text_acumulado = texto_generado
+			else:
+				_grh_text_acumulado = texto_prev.strip_edges() + sep + "\n" + texto_generado
+			panel_codigo.set_grh_text(_grh_text_acumulado)
+		else:
+			panel_codigo.set_grh_text(texto_generado)
 		var body := GrhParser.generar_body_text(data.anim_grhs, data.config)
 		panel_codigo.set_body_text(body)
 		data.selected_grh_id = -1
+		# Guardar base acumulada para siguientes anexados
+		if _modo_lote_activo:
+			var ultimo_id := _extraer_ultimo_grh_id_de_texto(_grh_text_acumulado)
+			if ultimo_id > 0:
+				data.config["last_grh"] = ultimo_id
+				if panel_ajustes and panel_ajustes.has_method("set_last_grh_sin_emitir"):
+					panel_ajustes.call("set_last_grh_sin_emitir", int(ultimo_id))
 
-	var resultado := GrhParser.parse(panel_codigo.get_grh_text())
+	# Parse: en modo lote el preview debe usar solo el último bloque.
+	var texto_a_parsear: String = panel_codigo.get_grh_text()
+	if _modo_lote_activo:
+		if regenerar and texto_generado.strip_edges() != "":
+			texto_a_parsear = texto_generado
+		elif _grh_text_ultimo_bloque.strip_edges() != "":
+			texto_a_parsear = _grh_text_ultimo_bloque
+	var resultado := GrhParser.parse(texto_a_parsear)
 	if resultado["ok"]:
 		data.grh_data = resultado["data"]
 		data.anim_grhs = GrhParser.detectar_anim_grhs(data.grh_data, data.config)
@@ -425,6 +514,9 @@ func _on_reset_solicitado() -> void:
 func _on_limpiar_solicitado() -> void:
 	if not data:
 		return
+	_modo_lote_activo = false
+	_grh_text_acumulado = ""
+	_grh_text_ultimo_bloque = ""
 	data.uploaded_image = null
 	data.working_image = null
 	data.sprite_image = null
