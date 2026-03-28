@@ -8,15 +8,17 @@ extends Window
 
 const _INSTRUCCIONES_BB := """
 [b]1. Cargar Imagen[/b]
-• Arrastra un archivo PNG al área de carga o usa el botón "Seleccionar archivo"
+• Arrastra un archivo PNG/BMP al área de carga o haz clic para seleccionarlo
+• Importante: el nombre del archivo (sin extensión) debe ser [b]numérico[/b] (ej: 8058.png)
 • Opcional: activa "Quitar fondo" para eliminar color magenta/verde
 • Opcional: activa "Potencia de 2" para reescalar a tamaños compatibles
+• Botón [b]Limpiar[/b]: resetea la carga y borra el estado actual
 
 [b]2. Configurar Ajustes[/b]
 • Establece el tamaño de frame (W × H) típicamente 32×32 o 64×64
 • Configura la velocidad de animación en milisegundos
 • Define el rango de Grh (desde/hasta) para la indexación
-• Nota: la exportación binaria `Graficos.ind` está desactivada temporalmente.
+• Exportación binaria: [b]Graficos.ind[/b] está habilitada (cabecera 273 bytes, speed short; opción Grh Long para IDs/frames)
 
 [b]3. Previsualizar[/b]
 • Selecciona un frame haciendo clic en la cuadrícula

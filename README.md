@@ -8,13 +8,14 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 
 ## Características
 
-- 📂 Carga imágenes PNG por clic o arrastrar/soltar
+- 📂 Carga imágenes PNG/BMP por clic o arrastrar/soltar
 - 🔄 Re-escalado automático a 192×192 (o 256×256 potencia de dos)
 - 🎨 Eliminación de fondo con tolerancia por color
 - 🖼️ Previsualización animada de las 4 direcciones (Abajo, Arriba, Izquierda, Derecha)
 - 🖱️ Edición de offset por frame con clic y/o teclas de flecha
 - 📝 Generación de código fuente (texto) compatible con `Graficos.ini` y `Cuerpos.ini` de AO
--  Descarga de imagen procesada en PNG o BMP
+- 🧹 Botón **Limpiar** para resetear la carga/estado
+- Descarga de imagen procesada en PNG o BMP
 - 🗒️ Pestaña de **Notas** para recordatorios del sprite
 
 ## Requisitos
@@ -25,7 +26,9 @@ Herramienta desktop para procesar sprites de cuerpos del juego **Argentum Online
 
 1. Abrir el proyecto en Godot: `File → Open Project → AOSPRITES-GODOT/`
 2. Presionar **F5** para ejecutar
-3. Cargar una imagen PNG del sprite sheet (debe ser compatible con el formato AO)
+3. Cargar una imagen PNG/BMP del sprite sheet (debe ser compatible con el formato AO)
+   - **Importante**: el nombre del archivo (sin extensión) debe ser **numérico** (ej: `8058.png`).
+     Ese número se usa como `bmpnum` para generar líneas tipo `GrhX=1-8058-x-y-w-h`.
 4. En la solapa **2. Ajustes + Previsualización**, ajusta:
 5. `NumGrh`, tamaño de frame, velocidad, zoom, offsets de cabeza
 6. En la solapa de previsualización, hacer clic en un frame estático y usar los botones o flechas del teclado para ajustar el offset
@@ -47,7 +50,7 @@ Atajos y acciones rápidas:
 
 - `Ctrl+Enter`: aplicar indexación al preview.
 - `Ctrl+S`: guardar `Graficos.ini` (si ya elegiste una ruta, guarda directo; si no, abre el diálogo).
-- Botones: **Reset/Limpiar**, **Copiar Graficos.ini**, **Copiar Cuerpos.ini**.
+- Botones: **Limpiar** (en Cargar Gráfico), **Reset**, **Copiar Graficos.ini**, **Copiar Cuerpos.ini**.
 
 Menú **Ayuda → Acerca de...** incluye una breve explicación de la herramienta y créditos al autor del proyecto web original.
 
