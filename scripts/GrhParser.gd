@@ -99,7 +99,7 @@ static func detectar_anim_grhs(grh_data: Dictionary, config: Dictionary) -> Dict
 # --------------------------------------------------------
 # Generar texto Graficos.ini desde config
 # --------------------------------------------------------
-static func generar_grh_text(config: Dictionary, anim_grhs: Dictionary) -> String:
+static func generar_grh_text(config: Dictionary, anim_grhs: Dictionary, bmpnum: int) -> String:
 	var t := ""
 	var base_grh := int(config["last_grh"]) + 1
 	var current_id := base_grh
@@ -120,7 +120,7 @@ static func generar_grh_text(config: Dictionary, anim_grhs: Dictionary) -> Strin
 			# Fix AO: frames 2 y 3 tienen Y desplazado -1
 			if col == 2 or col == 3:
 				y -= 1
-			t += "Grh%d=1-20000-%d-%d-%d-%d\n" % [current_id, x, y, config["w"], config["h"]]
+			t += "Grh%d=1-%d-%d-%d-%d-%d\n" % [current_id, bmpnum, x, y, config["w"], config["h"]]
 			frame_ids.append(current_id)
 			current_id += 1
 		anims.append({"dir": dir, "name": dir_names[dir], "frames": frame_ids})

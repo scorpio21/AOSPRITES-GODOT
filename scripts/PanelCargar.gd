@@ -123,6 +123,11 @@ func _on_archivo_seleccionado(ruta: String) -> void:
 		return
 	
 	_nombre_base = ruta.get_file().get_basename()
+	if not _nombre_base.is_valid_int():
+		drop_label.text = "El nombre del archivo debe ser numérico (ej: 8058.png). Actual: " + ruta.get_file()
+		if _logger:
+			_logger.call("log_msg", "PanelCargar: nombre no numérico: '" + _nombre_base + "'")
+		return
 	drop_label.text = "✓ " + ruta.get_file()
 	preview_original.texture = ImageTexture.create_from_image(img)
 	preview_original.show()

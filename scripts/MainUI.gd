@@ -337,7 +337,13 @@ func _actualizar_velocidad(ms: int) -> void:
 # ── Señales del Panel de Ajustes ──────────────────────────
 func on_config_cambiada(regenerar: bool) -> void:
 	if regenerar:
-		var texto := GrhParser.generar_grh_text(data.config, data.anim_grhs)
+		var nombre := str(data.working_filename)
+		if not nombre.is_valid_int():
+			if panel_codigo and panel_codigo.has_method("mostrar_error"):
+				panel_codigo.call("mostrar_error", "El nombre del archivo debe ser numérico (ej: 8058.png). Actual: '" + nombre + "'")
+			return
+		var bmpnum: int = int(nombre)
+		var texto := GrhParser.generar_grh_text(data.config, data.anim_grhs, bmpnum)
 		panel_codigo.set_grh_text(texto)
 		var body := GrhParser.generar_body_text(data.anim_grhs, data.config)
 		panel_codigo.set_body_text(body)
