@@ -302,6 +302,25 @@ func redibujar_animaciones() -> void:
 					lbl.text = "%d/%d" % [idx + 1, frames.size()]
 					_posicionar_contador_sobre_sprite(rect, lbl)
 
+
+func limpiar() -> void:
+	if not _data:
+		return
+	_data.selected_grh_id = -1
+	_limpiar_seleccion()
+	for dir in _data.dir_order:
+		var flow: HFlowContainer = _frame_containers.get(dir)
+		if flow:
+			for ch in flow.get_children():
+				ch.queue_free()
+		_frame_items[dir] = []
+		var rect: TextureRect = _anim_rects.get(dir)
+		if rect:
+			rect.texture = null
+			var lbl := rect.get_parent().get_node_or_null("FrameLbl") if rect else null
+			if lbl:
+				lbl.text = ""
+
 func _crear_frame_item(dir: String, frame_id: int, flow: HFlowContainer) -> void:
 	var item := PanelContainer.new()
 	item.name = "Frame_%d" % frame_id

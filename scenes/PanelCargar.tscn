@@ -115,6 +115,10 @@ popup/item_1/text = "BMP"
 layout_mode = 2
 text = "Descargar"
 
+[node name="BtnLimpiar" type="Button" parent="Margin/VBox"]
+layout_mode = 2
+text = "Limpiar"
+
 [node name="FileDialogOpen" type="FileDialog" parent="."]
 title = "Seleccionar imagen"
 size = Vector2i(800, 600)

@@ -92,6 +92,8 @@ func _ready() -> void:
 			panel_cargar.imagen_cargada.connect(on_imagen_cargada)
 		if panel_cargar.has_signal("opciones_cambiadas"):
 			panel_cargar.opciones_cambiadas.connect(on_opciones_imagen_cambiadas)
+		if panel_cargar.has_signal("limpiar_solicitado"):
+			panel_cargar.limpiar_solicitado.connect(_on_limpiar_solicitado)
 	if panel_ajustes:
 		if panel_ajustes.has_signal("config_cambiada"):
 			panel_ajustes.config_cambiada.connect(on_config_cambiada)
@@ -418,6 +420,37 @@ func _on_reset_solicitado() -> void:
 	panel_preview.redibujar_frames()
 	if panel_codigo and panel_codigo.has_method("mostrar_info"):
 		panel_codigo.call("mostrar_info", "Reset aplicado")
+
+
+func _on_limpiar_solicitado() -> void:
+	if not data:
+		return
+	data.uploaded_image = null
+	data.working_image = null
+	data.sprite_image = null
+	data.sprite_texture = null
+	data.working_filename = ""
+	data.grh_data = {}
+	data.anim_grhs = {"up": 0, "down": 0, "right": 0, "left": 0}
+	data.selected_grh_id = -1
+	for dir in data.dir_order:
+		data.anim_states[dir]["current_frame"] = 0
+		data.anim_states[dir]["playing"] = true
+
+	if panel_preview:
+		if panel_preview.has_method("limpiar"):
+			panel_preview.call("limpiar")
+		else:
+			panel_preview.actualizar_ui()
+			panel_preview.redibujar_frames()
+
+	if panel_codigo:
+		panel_codigo.set_grh_text("")
+		panel_codigo.set_body_text("")
+		panel_codigo.limpiar_error()
+		panel_codigo.mostrar_info("Carga limpiada")
+
+	_actualizar_estado_statusbar()
 
 # ── Imagen cargada desde PanelCargar ─────────────────────
 func on_imagen_cargada(img: Image, nombre: String) -> void:

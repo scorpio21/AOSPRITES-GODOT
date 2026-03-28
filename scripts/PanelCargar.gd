@@ -5,6 +5,7 @@ extends PanelContainer
 
 signal imagen_cargada(imagen: Image, nombre: String)
 signal opciones_cambiadas
+signal limpiar_solicitado
 
 @onready var drop_zone: Button              = $Margin/VBox/HBox/DropZone
 @onready var drop_label: Label              = $Margin/VBox/HBox/DropZone/DropLabel
@@ -17,6 +18,7 @@ signal opciones_cambiadas
 @onready var spin_tol: SpinBox              = $Margin/VBox/HBox/ContainerResized/HBoxOpts/SpinTol
 @onready var opt_formato: OptionButton      = $Margin/VBox/HBox/ContainerResized/HBoxOpts/OptFormato
 @onready var btn_descargar: Button          = $Margin/VBox/HBox/ContainerResized/BtnDescargar
+@onready var btn_limpiar: Button            = $Margin/VBox/BtnLimpiar
 @onready var file_dialog_open: FileDialog   = $FileDialogOpen
 @onready var file_dialog_save: FileDialog   = $FileDialogSave
 
@@ -61,6 +63,7 @@ func _ready() -> void:
 	if drop_zone and not drop_zone.gui_input.is_connected(_on_drop_zone_input):
 		drop_zone.gui_input.connect(_on_drop_zone_input)
 	if btn_descargar: btn_descargar.pressed.connect(_solicitar_guardar)
+	if btn_limpiar: btn_limpiar.pressed.connect(_on_btn_limpiar)
 	if file_dialog_open: file_dialog_open.file_selected.connect(_on_archivo_seleccionado)
 	if file_dialog_save: file_dialog_save.file_selected.connect(_on_guardar_seleccionado)
 	
@@ -142,6 +145,25 @@ func actualizar_preview(img: Image, titulo: String) -> void:
 	label_resized.text = titulo
 	preview_resized.texture = ImageTexture.create_from_image(img)
 	container_resized.show()
+
+
+func _on_btn_limpiar() -> void:
+	_limpiar_estado_local()
+	limpiar_solicitado.emit()
+
+
+func _limpiar_estado_local() -> void:
+	_imagen_procesada = null
+	_nombre_base = ""
+	if drop_label:
+		drop_label.text = "Arrastra tu imagen aquí o haz clic para seleccionarla"
+	if preview_original:
+		preview_original.texture = null
+		preview_original.visible = false
+	if container_resized:
+		container_resized.visible = false
+	if preview_resized:
+		preview_resized.texture = null
 
 # ── Getters de opciones ───────────────────────────────────
 func usar_potencia_de_dos() -> bool:
